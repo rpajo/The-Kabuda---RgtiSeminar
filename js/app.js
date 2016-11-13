@@ -98,16 +98,28 @@ var createScene = function() {
     var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), scene);
 
     // create a built-in "ground" shape; its constructor takes the same 5 params as the sphere's one
-    var ground = BABYLON.Mesh.CreateGround('ground1', 1000, 1000, 2, scene);
+    var ground = BABYLON.Mesh.CreateGround('ground', 200, 200, 2, scene);
+    
 
     //Creation of a repeated textured material
     var materialPlane = new BABYLON.StandardMaterial("texturePlane", scene);
-    materialPlane.diffuseTexture = new BABYLON.Texture("textures/Plate_Floor_1_D.jpg", scene);
-    materialPlane.diffuseTexture.uScale = 55.0;//Repeat 5 times on the Vertical Axes
-    materialPlane.diffuseTexture.vScale = 55.0;//Repeat 5 times on the Horizontal Axes
+    materialPlane.diffuseTexture = new BABYLON.Texture("textures/ground.jpg", scene);
+    materialPlane.diffuseTexture.uScale = 5.0;//Repeat 5 times on the Vertical Axes
+    materialPlane.diffuseTexture.vScale = 5.0;//Repeat 5 times on the Horizontal Axes
     materialPlane.backFaceCulling = false;//Always show the front and the back of an element
     ground.material = materialPlane;
 
+    var box = BABYLON.Mesh.CreateBox("box", 3, scene);
+    box.position.y = 3;
+    box.position.z = 0;
+
+    console.log("Set physx");
+
+    scene.enablePhysics();
+    box.physicsImpostor = new BABYLON.PhysicsImpostor(box, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0.9 }, scene);
+    ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+    
+    console.log("init movement")
     initMovement();
 
     // The function ImportMesh will import our custom model in the scene given in parameter
@@ -117,28 +129,12 @@ var createScene = function() {
     var loader =  new BABYLON.AssetsManager(scene);
 
 
-    BABYLON.SceneLoader.Load("./assets/Varian/", "psc-warrior.babylon", engine, function (newScene) {
-            // Wait for textures and shaders to be ready
-            console.log("LOADED");
-            console.log(newScene);
-            newScene.executeWhenReady(function () {
-                // Attach camera to canvas inputs
-                newScene.activeCamera.attachControl(canvas);
-
-                // Once the scene is loaded, just register a render loop to render it
-                engine.runRenderLoop(function() {
-                    newScene.render();
-                });
-            });
-        }, function (progress) {
-            // To do: give progress feedback to user
-        });
-
-
     var model = loader.addMeshTask("elf", "", "./assets/Varian/", "psc-warrior.babylon");
     model.onSuccess = function(t) {
         console.log(t);
-        actor.model = new BABYLON.Mesh("snowman", _this.scene);
+        //actor.model = new BABYLON.Mesh("characterModel", _this.scene);
+        actor.model = BABYLON.Mesh.CreateCylinder("characterBox", 2, 2, 2, 6, 1, scene, false);
+        //actor.model.scaling.y = 2;
         t.loadedMeshes.forEach(function(m) {
             m.parent = actor.model;
         });
@@ -148,8 +144,13 @@ var createScene = function() {
         actor.model.setEnabled(true);
         asset = {meshes: actor.model};
 
-        console.log("Actor");
+        
+        actor.model.physicsImpostor = new BABYLON.PhysicsImpostor(actor.model, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1000, restitution: 0.1 }, scene);
+        actor.model.isVisible = true;
 
+        actor.model.position.z = 10;
+        actor.model.position.y = 1;
+        console.log(actor.model);        
         camera.target = actor.model;
         camera.radius = 15;
         camera.heightOffset = 8;
