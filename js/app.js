@@ -254,7 +254,6 @@ var createScene = function() {
     
 
     // return the created scene
-
     return scene;
 }
 
