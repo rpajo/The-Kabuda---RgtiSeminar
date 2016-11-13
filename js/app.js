@@ -13,8 +13,8 @@ var actor = {
         model: null
         };
 
-var actor, camera;
-var charModel, asset;
+var charModel, asset, camera;
+var enemies = [];
 
 
 //  Register key presses
@@ -129,8 +129,8 @@ var createScene = function() {
     var loader =  new BABYLON.AssetsManager(scene);
 
 
-    var model = loader.addMeshTask("elf", "", "./assets/Varian/", "psc-warrior.babylon");
-    model.onSuccess = function(t) {
+    var modelLoad = loader.addMeshTask("actor", "", "./assets/Varian/", "psc-warrior.babylon");
+    modelLoad.onSuccess = function(t) {
         console.log(t);
         //actor.model = new BABYLON.Mesh("characterModel", _this.scene);
         actor.model = BABYLON.Mesh.CreateCylinder("characterBox", 2, 2, 2, 6, 1, scene, false);
@@ -146,16 +146,39 @@ var createScene = function() {
 
         
         actor.model.physicsImpostor = new BABYLON.PhysicsImpostor(actor.model, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1000, restitution: 0.1 }, scene);
-        actor.model.isVisible = true;
+        actor.model.isVisible = false;
 
         actor.model.position.z = 10;
-        actor.model.position.y = 1;
+        actor.model.position.y = 0.5;
         console.log(actor.model);        
         camera.target = actor.model;
         camera.radius = 15;
         camera.heightOffset = 8;
         camera.rotationOffset = 0; // the viewing angle
+    };
+
+    var enemyLoad = loader.addMeshTask("enemy", "", "./assets/gow/", "gears-of-war-3-lambent-female.babylon");
+    enemyLoad.onSuccess = function(t) {
+        var enemy = BABYLON.Mesh.CreateCylinder("characterBox", 2, 2, 2, 6, 1, scene, false);
+
+        t.loadedMeshes.forEach(function(m) {
+            m.parent = enemy;
+        });
+        enemy.position.z = 15;
+        enemy.position.x = 10;
+        asset = {meshes: enemy};
+
         
+        enemy.physicsImpostor = new BABYLON.PhysicsImpostor(enemy, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 500, restitution: 0.1 }, scene);
+        enemy.isVisible = true;
+
+        enemy.position.z = 15;
+        enemy.position.y = 0.5;
+
+    };
+
+
+    loader.onFinish = function (tasks) {
         engine.runRenderLoop(function() {
             if (!actor.killed) {
                 move();
