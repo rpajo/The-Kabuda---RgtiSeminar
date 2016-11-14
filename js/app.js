@@ -19,6 +19,7 @@ var enemies = [];
 var greenBox;
 var enemy;
 
+var enemyCount= 10 // number of mosters to be generated;
 
 //  Register key presses
 var initMovement = function() {
@@ -101,8 +102,9 @@ var onPointerDown = function (evt) {
         currentMesh = pickInfo.pickedMesh;
     }
     currentMesh.health=currentMesh.health-1;
-    if(currentMesh.health==0){
+    if(currentMesh.health==0){        
         currentMesh.dispose();
+        enemies[currentMesh.index] = null;       
     }
 }
 
@@ -116,7 +118,7 @@ var createScene = function() {
     var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), scene);
 
     // create a built-in "ground" shape; its constructor takes the same 5 params as the sphere's one
-    ground = BABYLON.Mesh.CreateGround('ground', 200, 200, 2, scene);
+    ground = BABYLON.Mesh.CreateGround('ground', 400, 400, 2, scene);
     
     // Create Canvas and attach mouse click listener
     var canvas = engine.getRenderingCanvas();
@@ -125,8 +127,8 @@ var createScene = function() {
     //Creation of a repeated textured material
     var materialPlane = new BABYLON.StandardMaterial("texturePlane", scene);
     materialPlane.diffuseTexture = new BABYLON.Texture("textures/ground.jpg", scene);
-    materialPlane.diffuseTexture.uScale = 5.0;//Repeat 5 times on the Vertical Axes
-    materialPlane.diffuseTexture.vScale = 5.0;//Repeat 5 times on the Horizontal Axes
+    materialPlane.diffuseTexture.uScale = 55.0;//Repeat 5 times on the Vertical Axes
+    materialPlane.diffuseTexture.vScale = 55.0;//Repeat 5 times on the Horizontal Axes
     materialPlane.backFaceCulling = false;//Always show the front and the back of an element
     ground.material = materialPlane;
 
@@ -151,7 +153,6 @@ var createScene = function() {
 
     var modelLoad = loader.addMeshTask("actor", "", "./assets/Varian/", "psc-warrior.babylon");
     modelLoad.onSuccess = function(t) {
-        console.log(t);
         //actor.model = new BABYLON.Mesh("characterModel", _this.scene);
         actor.model = BABYLON.Mesh.CreateCylinder("characterBox", 2, 2, 2, 6, 1, scene, false);
         //actor.model.scaling.y = 2;
@@ -165,7 +166,7 @@ var createScene = function() {
         asset = {meshes: actor.model};
 
         
-        actor.model.physicsImpostor = new BABYLON.PhysicsImpostor(actor.model, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1000, restitution: 0.1 }, scene);
+        actor.model.physicsImpostor = new BABYLON.PhysicsImpostor(actor.model, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 1000, restitution: 0.1 }, scene);
         actor.model.isVisible = false;
 
         actor.model.position.z = 10;
@@ -177,29 +178,38 @@ var createScene = function() {
         camera.rotationOffset = 0; // the viewing angle
     };
 
-    var enemyLoad = loader.addMeshTask("enemy", "", "./assets/gow/", "gears-of-war-3-lambent-female.babylon");
+for (var i = 0; i < enemyCount; i++) {
+    var enemyLoad = loader.addMeshTask("enemy"+i, "", "./assets/gow/", "gears-of-war-3-lambent-female.babylon");
     enemyLoad.onSuccess = function(t) {
-        enemy = BABYLON.Mesh.CreateCylinder("enemy", 2, 2, 2, 6, 1, scene, false);
+        var enemy = BABYLON.Mesh.CreateCylinder("enemy"+i, 2, 2, 2, 6, 1, scene, false);
 
         t.loadedMeshes.forEach(function(m) {
             m.parent = enemy;
         });
-        enemy.position.z = 15;
-        enemy.position.x = 10;
+        enemy.position.z = Math.random()*100;
+        enemy.position.x = Math.random()*100;
+        enemy.position.y = 0.5;
+
         asset = {meshes: enemy};
 
         
         enemy.physicsImpostor = new BABYLON.PhysicsImpostor(enemy, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 500, restitution: 0.1 }, scene);
         enemy.isVisible = false;
 
-        enemy.position.y = 0.5;
+        
         enemy.rotationQuaternion = new BABYLON.Quaternion(0, 0, 0, 1);
         enemy.health = 3;
-        
-    };
 
+        enemies.push(enemy);
+
+    };
+};
 
     loader.onFinish = function (tasks) {
+
+        for (var i = 0; i < enemies.length; i++) {
+            enemies[i].index = i;
+        }
         run(scene);
     };
 
@@ -212,8 +222,7 @@ var createScene = function() {
 
 var run = function(scene){
     engine.runRenderLoop(function() {
-        enemy.rotationQuaternion.x = 0;
-        enemy.rotationQuaternion.z = 0;
+        
         actor.model.rotationQuaternion.x = 0;
         actor.model.rotationQuaternion.z = 0;
 
@@ -221,30 +230,39 @@ var run = function(scene){
         if (actor.health > 0) {
             move(); 
         }
-        var nearX = true, nearZ = true;
-        if (enemy.position.x < actor.model.position.x - 2) {
-            console.log("enemy x < hero");
-            enemy.position.x += 0.2;
-            nearX = false;
-        } 
-        else if(enemy.position.x > actor.model.position.x + 2) {
-            console.log("enemy x > hero");
-            enemy.position.x -= 0.2;
-            nearX = false;
-        }
-        if(enemy.position.z < actor.model.position.z - 2) {
-            enemy.position.z += 0.2;
-            nearZ = false;
-        }
-        else if(enemy.position.z > actor.model.position.z + 2) {
-            enemy.position.z -= 0.2;
-            nearZ = false;
-        }
 
-        if(nearX && nearZ) {
-            actor.health += -0.1;
-            document.getElementById("healthDisplay").innerHTML = "HEALTH: " + Math.round(actor.health*100)/100;
-        }
+        var nearX, nearZ;
+
+        enemies.forEach(function(enemy) {
+            if (enemy != null) {
+                enemy.rotationQuaternion.x = 0;
+                enemy.rotationQuaternion.z = 0;
+                nearX = true; nearZ = true;
+                if (enemy.position.x < actor.model.position.x - 2) {
+                    enemy.position.x += 0.1;
+                    nearX = false;
+                } 
+                else if(enemy.position.x > actor.model.position.x + 2) {
+                    enemy.position.x -= 0.1;
+                    nearX = false;
+                }
+                if(enemy.position.z < actor.model.position.z - 2) {
+                    enemy.position.z += 0.1;
+                    nearZ = false;
+                }
+                else if(enemy.position.z > actor.model.position.z + 2) {
+                    enemy.position.z -= 0.1;
+                    nearZ = false;
+                }
+
+                if(nearX && nearZ) {
+                    actor.health += -0.1;
+                    document.getElementById("healthDisplay").innerHTML = "HEALTH: " + Math.round(actor.health*100)/100;
+                }
+            }
+            
+        }, this);
+        
             
         scene.render();
     });
