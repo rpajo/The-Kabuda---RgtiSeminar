@@ -218,20 +218,32 @@ var run = function(scene){
         actor.model.rotationQuaternion.z = 0;
 
 
-        if (actor.health) {
+        if (actor.health > 0) {
             move(); 
         }
-        if (enemy.position.x < actor.model.position.x + 2) {
+        var nearX = true, nearZ = true;
+        if (enemy.position.x < actor.model.position.x - 2) {
+            console.log("enemy x < hero");
             enemy.position.x += 0.2;
+            nearX = false;
         } 
-        if(enemy.position.x > actor.model.position.x -2) {
+        else if(enemy.position.x > actor.model.position.x + 2) {
+            console.log("enemy x > hero");
             enemy.position.x -= 0.2;
+            nearX = false;
         }
-        if(enemy.position.z < actor.model.position.z +2) {
+        if(enemy.position.z < actor.model.position.z - 2) {
             enemy.position.z += 0.2;
+            nearZ = false;
         }
-        if(enemy.position.z > actor.model.position.z - 2) {
+        else if(enemy.position.z > actor.model.position.z + 2) {
             enemy.position.z -= 0.2;
+            nearZ = false;
+        }
+
+        if(nearX && nearZ) {
+            actor.health += -0.1;
+            document.getElementById("healthDisplay").innerHTML = "HEALTH: " + Math.round(actor.health*100)/100;
         }
             
         scene.render();

@@ -11,3 +11,11 @@ canvas {
     width   : 100%;
     height  : 100%;
 }
+
+#healthDisplay {
+    position:absolute;
+    top:20px;
+    left : 20px;
+    color:white;
+    font-size: 2em;
+}
