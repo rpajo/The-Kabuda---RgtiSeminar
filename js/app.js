@@ -230,17 +230,23 @@ var run = function(scene){
         if(enemy.position.z < actor.model.position.z +2) {
             enemy.position.z += 0.2;
         }
-            
         if(enemy.position.z > actor.model.position.z - 2) {
             enemy.position.z -= 0.2;
         }
             
         scene.render();
     });
-}
 
+};
 
 var scene = createScene();
+
+canvas.addEventListener("pointerdown", onPointerDown, false);
+
+
+scene.onDispose = function () {
+    canvas.removeEventListener("pointerdown", onPointerDown);
+}
 
 
 scene.onDispose = function () {
