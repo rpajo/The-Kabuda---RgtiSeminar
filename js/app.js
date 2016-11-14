@@ -11,6 +11,7 @@ var actor = {
         moveRight : false,
         moveForward : false,
         moveBackwards : false,
+        jump : 0,
         model: null
         };
 
@@ -51,6 +52,9 @@ var initMovement = function() {
             actor.moveBackwards = true;
             actor.moveForward = false;
         }
+        else if (evt.keyCode == 32) {
+            actor.jump = 18; // the value to be decreased as the model gradially jumps higher
+        }
     };
 
     // On key up, reset the movement
@@ -90,6 +94,10 @@ var move = function() {
     if (actor.moveBackwards) {
         pos.z += +0.3;
         //camera.position.z += -0.3;
+    }
+    if (actor.jump) {
+        actor.model.position.y += 0.3;
+        actor.jump--;
     }
 };
 
@@ -169,7 +177,7 @@ var createScene = function() {
         asset = {meshes: actor.model};
 
         
-        actor.model.physicsImpostor = new BABYLON.PhysicsImpostor(actor.model, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 1000, restitution: 0.1 }, scene);
+        actor.model.physicsImpostor = new BABYLON.PhysicsImpostor(actor.model, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 1000, restitution: 0 }, scene);
         actor.model.isVisible = false;
 
         actor.model.position.z = 10;
@@ -177,7 +185,7 @@ var createScene = function() {
         console.log(actor.model);        
         camera.target = actor.model;
         camera.radius = 15;
-        camera.heightOffset = 8;
+        camera.heightOffset = 15;
         camera.rotationOffset = 0; // the viewing angle
     };
 
