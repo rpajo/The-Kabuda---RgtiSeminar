@@ -21,6 +21,9 @@ var enemy;
 
 var enemyCount= 10 // number of mosters to be generated;
 
+var healthBar = document.getElementById("healthBar");
+healthBar.value = 100;
+
 //  Register key presses
 var initMovement = function() {
     //console.log("MOVING");
@@ -257,6 +260,7 @@ var run = function(scene){
 
                 if(nearX && nearZ) {
                     actor.health += -0.1;
+                    healthBar.value = Math.floor(actor.health);
                     document.getElementById("healthDisplay").innerHTML = "HEALTH: " + Math.round(actor.health*100)/100;
                 }
             }
