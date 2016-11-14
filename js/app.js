@@ -16,6 +16,7 @@ var actor = {
         };
 
 var charModel, asset, camera, scene, ground, currentMesh;
+var walkingEffect, swordEffect, dyingEffect; //sound effects
 var enemies = [];
 var greenBox;
 var enemy;
@@ -107,6 +108,7 @@ var onPointerDown = function (evt) {
         return;
     }
 
+    swordEffect.play();
     // check if we are under a mesh
     var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh !== ground; });
     if (pickInfo.hit) {
@@ -115,7 +117,8 @@ var onPointerDown = function (evt) {
     currentMesh.health=currentMesh.health-1;
     if(currentMesh.health==0){        
         currentMesh.dispose();
-        enemies[currentMesh.index] = null;       
+        enemies[currentMesh.index] = null;  
+        dyingEffect.play();     
     }
 }
 
@@ -123,7 +126,7 @@ var createScene = function() {
     // create a basic BJS Scene object
     scene = new BABYLON.Scene(engine);
 
-    camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 50, 17), scene);
+    camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 30, 50), scene);
 
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), scene);
@@ -135,6 +138,20 @@ var createScene = function() {
     var canvas = engine.getRenderingCanvas();
     canvas.addEventListener("pointerdown", onPointerDown, false);
     
+    swordEffect = new BABYLON.Sound("sword", "assets/sword.mp3", scene);
+
+    dyingEffect = new BABYLON.Sound("dying", "assets/dying.mp3", scene);
+
+    /*walkingEffect = new BABYLON.Sound("walking", "assets/walking2.wav", scene, function() {
+        console.log("walking effect loaded");
+    }, { loop: true, autoplay: true });*/
+
+    var music = new BABYLON.Sound("music", "assets/diablo1.mp3", scene,
+        function () {
+        // Sound has been downloaded & decoded
+        music.play();
+        }, { loop: true, autoplay: true });
+
     //Creation of a repeated textured material
     var materialPlane = new BABYLON.StandardMaterial("texturePlane", scene);
     materialPlane.diffuseTexture = new BABYLON.Texture("textures/ground.jpg", scene);
@@ -187,6 +204,8 @@ var createScene = function() {
         camera.radius = 15;
         camera.heightOffset = 15;
         camera.rotationOffset = 0; // the viewing angle
+
+        //walkingEffect.attachToMesh(actor.model); 
     };
 
 for (var i = 0; i < enemyCount; i++) {
