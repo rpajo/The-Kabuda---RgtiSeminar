@@ -5,6 +5,7 @@ var engine = new BABYLON.Engine(canvas, true);
 
 var actor = {
         // Movement attributes
+        health: 100,
         speed : 3,
         moveLeft : false,
         moveRight : false,
@@ -13,8 +14,10 @@ var actor = {
         model: null
         };
 
-var charModel, asset, camera;
+var charModel, asset, camera, scene, ground, currentMesh;
 var enemies = [];
+var greenBox;
+var enemy;
 
 
 //  Register key presses
@@ -86,21 +89,39 @@ var move = function() {
     }
 };
 
+// Pointer Down event handler
+var onPointerDown = function (evt) {
+    if (evt.button !== 0) {
+        return;
+    }
+
+    // check if we are under a mesh
+    var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh !== ground; });
+    if (pickInfo.hit) {
+        currentMesh = pickInfo.pickedMesh;
+    }
+    currentMesh.health=currentMesh.health-1;
+    if(currentMesh.health==0){
+        currentMesh.dispose();
+    }
+}
 
 var createScene = function() {
     // create a basic BJS Scene object
-    var scene = new BABYLON.Scene(engine);
+    scene = new BABYLON.Scene(engine);
 
-    var camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 50, 17), scene);
+    camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 50, 17), scene);
 
-    console.log(camera);
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), scene);
 
     // create a built-in "ground" shape; its constructor takes the same 5 params as the sphere's one
-    var ground = BABYLON.Mesh.CreateGround('ground', 200, 200, 2, scene);
+    ground = BABYLON.Mesh.CreateGround('ground', 200, 200, 2, scene);
     
-
+    // Create Canvas and attach mouse click listener
+    var canvas = engine.getRenderingCanvas();
+    canvas.addEventListener("pointerdown", onPointerDown, false);
+    
     //Creation of a repeated textured material
     var materialPlane = new BABYLON.StandardMaterial("texturePlane", scene);
     materialPlane.diffuseTexture = new BABYLON.Texture("textures/ground.jpg", scene);
@@ -127,7 +148,6 @@ var createScene = function() {
     
         // The loader
     var loader =  new BABYLON.AssetsManager(scene);
-
 
     var modelLoad = loader.addMeshTask("actor", "", "./assets/Varian/", "psc-warrior.babylon");
     modelLoad.onSuccess = function(t) {
@@ -159,7 +179,7 @@ var createScene = function() {
 
     var enemyLoad = loader.addMeshTask("enemy", "", "./assets/gow/", "gears-of-war-3-lambent-female.babylon");
     enemyLoad.onSuccess = function(t) {
-        var enemy = BABYLON.Mesh.CreateCylinder("characterBox", 2, 2, 2, 6, 1, scene, false);
+        enemy = BABYLON.Mesh.CreateCylinder("enemy", 2, 2, 2, 6, 1, scene, false);
 
         t.loadedMeshes.forEach(function(m) {
             m.parent = enemy;
@@ -170,100 +190,76 @@ var createScene = function() {
 
         
         enemy.physicsImpostor = new BABYLON.PhysicsImpostor(enemy, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 500, restitution: 0.1 }, scene);
-        enemy.isVisible = true;
+        enemy.isVisible = false;
 
-        enemy.position.z = 15;
         enemy.position.y = 0.5;
-
+        enemy.rotationQuaternion = new BABYLON.Quaternion(0, 0, 0, 1);
+        enemy.health = 3;
+        
     };
 
 
     loader.onFinish = function (tasks) {
-        engine.runRenderLoop(function() {
-            if (!actor.killed) {
-                move();
-                //snowman.position.x += 0.1;
-                /*camera.position.z += actor.speed;
-                actor.position.z += actor.speed;
-                ground.position.z += actor.speed;*/
-                
-            }
-            scene.render();
-        });
+        run(scene);
     };
 
     loader.load();
 
-    var greenBox = BABYLON.Mesh.CreateBox("green", 10, scene);
-    var greenMat = new BABYLON.StandardMaterial("ground", scene);
-    greenMat.emissiveColor = BABYLON.Color3.Green();
-    greenBox.material = greenMat;
-    greenBox.position.z -= 100;
-    greenBox.position.y = 0;
-    greenBox.health = 3;
-
-
-    //greenBox movement
-    scene.registerBeforeRender(function () {
-        if (greenBox.position.x < camera.position.x)
-            greenBox.position.x += 0.2;
-        if(greenBox.position.x > camera.position.x)
-            greenBox.position.x -= 0.2;
-        if(greenBox.position.z < camera.position.z)
-            greenBox.position.z += 0.2;
-        if(greenBox.position.z > camera.position.z)
-            greenBox.position.z -= 0.2;
-    });
-
-    // Events
-    var canvas = engine.getRenderingCanvas();
-    var currentMesh;
-
-    var getGroundPosition = function () {
-        // Use a predicate to get position on the ground
-        var pickinfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh == ground; });
-        if (pickinfo.hit) {
-            return pickinfo.pickedPoint;
-        }
-
-        return null;
-    }
-
-    var onPointerDown = function (evt) {
-        if (evt.button !== 0) {
-            return;
-        }
-
-        // check if we are under a mesh
-        var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh !== ground; });
-        if (pickInfo.hit) {
-            currentMesh = pickInfo.pickedMesh;
-        }
-        currentMesh.health=currentMesh.health-1;
-        if(currentMesh.health==0){
-            currentMesh.dispose();
-        }
-    }
-        
-    canvas.addEventListener("pointerdown", onPointerDown, false);
-    
-
-    scene.onDispose = function () {
-        canvas.removeEventListener("pointerdown", onPointerDown);
-    }
-    
 
     // return the created scene
-
     return scene;
 }
+
+var run = function(scene){
+    engine.runRenderLoop(function() {
+        enemy.rotationQuaternion.x = 0;
+        enemy.rotationQuaternion.z = 0;
+        actor.model.rotationQuaternion.x = 0;
+        actor.model.rotationQuaternion.z = 0;
+
+
+        if (actor.health) {
+            move(); 
+        }
+        if (enemy.position.x < actor.model.position.x + 2) {
+            enemy.position.x += 0.2;
+        } 
+        if(enemy.position.x > actor.model.position.x -2) {
+            enemy.position.x -= 0.2;
+        }
+        if(enemy.position.z < actor.model.position.z +2) {
+            enemy.position.z += 0.2;
+        }
+            
+        if(enemy.position.z > actor.model.position.z - 2) {
+            enemy.position.z -= 0.2;
+        }
+            
+        scene.render();
+    });
+}
+
 
 var scene = createScene();
 
 
-
+scene.onDispose = function () {
+    canvas.removeEventListener("pointerdown", onPointerDown);
+}
 window.addEventListener('resize', function() {
     engine.resize();
 });
 
+
+/*
+var getGroundPosition = function () {
+    // Use a predicate to get position on the ground
+    var pickinfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh == ground; });
+    if (pickinfo.hit) {
+        return pickinfo.pickedPoint;
+    }
+
+    return null;
+}
+*/
 
