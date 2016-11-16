@@ -122,6 +122,16 @@ var onPointerDown = function (evt) {
     }
 }
 
+// mouse over mesh event initializer
+var makeOverOut = function (mesh) {
+    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOutTrigger, mesh, "visibility", 0.05));
+    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh, "visibility", 0.6));
+    mesh.actionManager.registerAction(new BABYLON.InterpolateValueAction(BABYLON.ActionManager.OnPointerOutTrigger, mesh, "scaling", new BABYLON.Vector3(1, 1, 1), 150));
+    mesh.actionManager.registerAction(new BABYLON.InterpolateValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh, "scaling", new BABYLON.Vector3(1.05, 1.05, 1.05), 150));
+    console.log("init hover done");
+    
+}
+
 var createScene = function() {
     // create a basic BJS Scene object
     scene = new BABYLON.Scene(engine);
@@ -161,6 +171,8 @@ var createScene = function() {
     ground.material = materialPlane;
 
     var box = BABYLON.Mesh.CreateBox("box", 3, scene);
+    var boxMat = new BABYLON.StandardMaterial("boxmMterial", scene);
+    box.material = boxMat;
     box.position.y = 3;
     box.position.z = 0;
 
@@ -205,14 +217,25 @@ var createScene = function() {
         camera.heightOffset = 15;
         camera.rotationOffset = 0; // the viewing angle
 
+        actor.model.actionManager = new BABYLON.ActionManager(scene);
+        
+
         //walkingEffect.attachToMesh(actor.model); 
     };
+
+var enemyMat = new BABYLON.StandardMaterial("enemyMaterial", scene);
+enemyMat.diffuseColor = new BABYLON.Color3(1, 0, 0); //Red
 
 for (var i = 0; i < enemyCount; i++) {
     var enemyLoad = loader.addMeshTask("enemy"+i, "", "./assets/gow/", "gears-of-war-3-lambent-female.babylon");
     enemyLoad.onSuccess = function(t) {
-        var enemy = BABYLON.Mesh.CreateCylinder("enemy"+i, 2, 2, 2, 6, 1, scene, false);
-
+        var enemy = BABYLON.Mesh.CreateTorus("enemy"+i, 1, 0.7, 16, scene);
+        enemy.material = enemyMat;
+        enemy.actionManager = new BABYLON.ActionManager(scene);
+        enemy.visibility = 0.05;
+        enemy.scale
+        makeOverOut(enemy);
+        
         t.loadedMeshes.forEach(function(m) {
             m.parent = enemy;
         });
@@ -224,7 +247,7 @@ for (var i = 0; i < enemyCount; i++) {
 
         
         enemy.physicsImpostor = new BABYLON.PhysicsImpostor(enemy, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 500, restitution: 0.1 }, scene);
-        enemy.isVisible = false;
+        enemy.isVisible = true;
 
         
         enemy.rotationQuaternion = new BABYLON.Quaternion(0, 0, 0, 1);
