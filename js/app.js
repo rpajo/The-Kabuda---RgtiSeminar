@@ -18,10 +18,9 @@ var actor = {
 var charModel, asset, camera, scene, ground, currentMesh;
 var walkingEffect, swordEffect, dyingEffect; //sound effects
 var enemies = [];
-var greenBox;
 var enemy;
 
-var enemyCount= 10 // number of mosters to be generated;
+var enemyCount= 10 // number of monsters to be generated;
 
 var healthBar = document.getElementById("healthBar");
 healthBar.value = 100;
@@ -196,13 +195,22 @@ var onPointerDown = function (evt) {
 // mouse over mesh event initializer
 var makeOverOut = function (mesh) {
     //var child = enemy.getChildren();
-    var child = mesh.getChildren()[0];    
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOutTrigger, child, "visibility", 0));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, child, "visibility", 0.5));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOutTrigger, mesh, "visibility", 0));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh, "visibility", 0.05));
-    mesh.actionManager.registerAction(new BABYLON.InterpolateValueAction(BABYLON.ActionManager.OnPointerOutTrigger, mesh, "scaling", new BABYLON.Vector3(1, 1, 1), 150));
-    mesh.actionManager.registerAction(new BABYLON.InterpolateValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh, "scaling", new BABYLON.Vector3(1.05, 1.05, 1.05), 150));    
+    var child = mesh.getChildren()[0];  
+    //console.log("makeoverout");
+    mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(ev){	
+        mesh.visibility = 0.05;
+        child.visibility = 0.5;
+		scene.hoverCursor = " url('http://jerome.bousquie.fr/BJS/test/viseur.png') 12 12, auto ";
+	}));
+
+    mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(ev) {
+        mesh.visibility = 0;
+        child.visibility = 0;
+    }));
+
+    // mesh.actionManager.registerAction(new BABYLON.InterpolateValueAction(BABYLON.ActionManager.OnPointerOutTrigger, mesh, "scaling", new BABYLON.Vector3(1, 1, 1), 150));
+    //mesh.actionManager.registerAction(new BABYLON.InterpolateValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh, "scaling", new BABYLON.Vector3(1.05, 1.05, 1.05), 150));
+
 }
 
 var createScene = function() {
@@ -222,10 +230,7 @@ var createScene = function() {
 
     // create a built-in "ground" shape; its constructor takes the same 5 params as the sphere's one
     ground = BABYLON.Mesh.CreateGround('ground', 400, 400, 2, scene);
-    
-    // Create Canvas and attach mouse click listener
-    var canvas = engine.getRenderingCanvas();
-    canvas.addEventListener("pointerdown", onPointerDown, false);
+
     
     swordEffect = new BABYLON.Sound("sword", "assets/sword.mp3", scene);
 
@@ -293,7 +298,6 @@ var createScene = function() {
 
         actor.model.position.z = 10;
         actor.model.position.y = 0.5;
-        console.log(actor.model);        
         camera.target = actor.model;
         camera.radius = 15;
         camera.heightOffset = 15;
@@ -326,7 +330,7 @@ for (var i = 0; i < enemyCount; i++) {
 
 
         t.loadedMeshes.forEach(function(m) {
-            m.position.y -= 0;
+            m.position.y -= 1.6;
             m.parent = enemy;
         });
 
@@ -423,10 +427,6 @@ scene.onDispose = function () {
     canvas.removeEventListener("pointerdown", onPointerDown);
 }
 
-
-scene.onDispose = function () {
-    canvas.removeEventListener("pointerdown", onPointerDown);
-}
 window.addEventListener('resize', function() {
     engine.resize();
 });
