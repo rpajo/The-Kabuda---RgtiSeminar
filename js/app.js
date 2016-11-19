@@ -199,6 +199,13 @@ var move = function() {
     }
 };
 
+
+
+
+
+
+
+
 // Pointer Down event handler
 var onPointerDown = function (evt) {
     if (evt.button !== 0) {
@@ -389,6 +396,24 @@ for (var i = 0; i < enemyCount; i++) {
 
     loader.load();
 
+
+    
+
+    scene.onPointerDown = function (evt, pickResult) {
+        // if the click hits the ground object, we change the impact position
+        if (pickResult.hit) {
+            var impact = BABYLON.Mesh.CreateSphere("sphere", 0.2, 0.2, scene);
+            impact.isVisible=false;
+            impact.position.x = pickResult.pickedPoint.x;
+            impact.position.y = pickResult.pickedPoint.y;
+            impact.position.z = pickResult.pickedPoint.z;
+            impact.isVisible = true;
+            setTimeout(function(){
+                impact.isVisible = false;
+            }, 500);
+        }
+        
+    };
 
     // return the created scene
     return scene;
