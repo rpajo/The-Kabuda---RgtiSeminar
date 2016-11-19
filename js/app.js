@@ -24,6 +24,7 @@ var enemyCount= 10 // number of monsters to be generated;
 
 var healthBar = document.getElementById("healthBar");
 healthBar.value = 100;
+var fast = false;
 
 //  Register key presses
 var initMovement = function() {
@@ -129,6 +130,12 @@ var initMovement = function() {
         else if (evt.keyCode == 32) {
             actor.jump = 18; // the value to be decreased as the model gradially jumps higher
         }
+        if (evt.keyCode == 16) {
+            fast = true;
+        }
+        else{
+            fast = false;
+        }
     };
 
     // On key up, reset the movement
@@ -154,17 +161,37 @@ var initMovement = function() {
 var move = function() {
     var pos = actor.model.position;
     if (actor.moveRight) {
-        pos.x += -0.3;
+        if(fast==true){
+            pos.x += -0.8;
+        }
+        else{
+            pos.x += -0.3;
+        }
     }
     if (actor.moveLeft) {
-        pos.x += +0.3;
+        if(fast==true){
+            pos.x += +0.8;
+        }
+        else{
+            pos.x += +0.3;
+        }
         
     }
     if (actor.moveForward) {
-        pos.z += -0.3;
+        if(fast==true){
+            pos.z += -0.8;
+        }
+        else{
+            pos.z += -0.3;
+        }
     }
     if (actor.moveBackwards) {
-        pos.z += +0.3;
+        if(fast==true){
+            pos.z += +0.8;
+        }
+        else{
+            pos.z += +0.3;
+        }
     }
     if (actor.jump) {
         actor.model.position.y += 0.3;
@@ -177,7 +204,6 @@ var onPointerDown = function (evt) {
     if (evt.button !== 0) {
         return;
     }
-
     swordEffect.play();
     // check if we are under a mesh
     var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh !== ground; });
