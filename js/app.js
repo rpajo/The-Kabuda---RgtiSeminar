@@ -31,25 +31,99 @@ var initMovement = function() {
     //console.log("MOVING");
 
     // When a key is pressed, set the movement
+    var usmerjenost = 0; // gor-0, desno-1, dol-2, levo-3
     var onKeyDown = function(evt) {
         // console.log(evt.keyCode);
         // To the left
         if (evt.keyCode == 65) {
+            if(usmerjenost == 0){
+                actor.model.getChildren()[2].rotation.y = -Math.PI/2;
+                actor.model.getChildren()[3].rotation.y = -Math.PI/2;
+                actor.model.getChildren()[4].rotation.y = -Math.PI/2;
+                usmerjenost=3;
+            }
+            if(usmerjenost == 1){
+                actor.model.getChildren()[2].rotation.y = -Math.PI;
+                actor.model.getChildren()[3].rotation.y = -Math.PI;
+                actor.model.getChildren()[4].rotation.y = -Math.PI;
+                usmerjenost=3;
+            }
+            if(usmerjenost == 2){
+                actor.model.getChildren()[2].rotation.y = Math.PI/2;
+                actor.model.getChildren()[3].rotation.y = Math.PI/2;
+                actor.model.getChildren()[4].rotation.y = Math.PI/2;
+                usmerjenost=3;
+            }
             actor.moveLeft = true;
             actor.moveRight = false;
+
         } 
         else if (evt.keyCode == 68) {
             // To the right
+            if(usmerjenost == 0){
+                actor.model.getChildren()[2].rotation.y = Math.PI/2;
+                actor.model.getChildren()[3].rotation.y = Math.PI/2;
+                actor.model.getChildren()[4].rotation.y = Math.PI/2;
+                usmerjenost=1;
+            }
+            if(usmerjenost == 3){
+                actor.model.getChildren()[2].rotation.y = -Math.PI;
+                actor.model.getChildren()[3].rotation.y = -Math.PI;
+                actor.model.getChildren()[4].rotation.y = -Math.PI;
+                usmerjenost=1;
+            }
+            if(usmerjenost == 2){
+                actor.model.getChildren()[2].rotation.y = -Math.PI/2;
+                actor.model.getChildren()[3].rotation.y = -Math.PI/2;
+                actor.model.getChildren()[4].rotation.y = -Math.PI/2;
+                usmerjenost=1;
+            }
             actor.moveRight = true;
             actor.moveLeft = false;
         }
         else if (evt.keyCode == 87) {
             // Forward
-            actor.moveForward = true;
+            if(usmerjenost == 3){
+                actor.model.getChildren()[2].rotation.y = Math.PI/2;
+                actor.model.getChildren()[3].rotation.y = Math.PI/2;
+                actor.model.getChildren()[4].rotation.y = Math.PI/2;
+                usmerjenost=0;
+            }
+            if(usmerjenost == 2){
+                actor.model.getChildren()[2].rotation.y = -Math.PI;
+                actor.model.getChildren()[3].rotation.y = -Math.PI;
+                actor.model.getChildren()[4].rotation.y = -Math.PI;
+                usmerjenost=0;
+            }
+            if(usmerjenost == 1){
+                actor.model.getChildren()[2].rotation.y = -Math.PI/2;
+                actor.model.getChildren()[3].rotation.y = -Math.PI/2;
+                actor.model.getChildren()[4].rotation.y = -Math.PI/2;
+                usmerjenost=0;
+            }
             actor.moveBackwards = false;
+            actor.moveForward = true;
         }
         else if (evt.keyCode == 83) {
             // Backwards
+            if(usmerjenost == 3){
+                actor.model.getChildren()[2].rotation.y = -Math.PI/2;
+                actor.model.getChildren()[3].rotation.y = -Math.PI/2;
+                actor.model.getChildren()[4].rotation.y = -Math.PI/2;
+                usmerjenost=2;
+            }
+            if(usmerjenost == 0){
+                actor.model.getChildren()[2].rotation.y = -Math.PI;
+                actor.model.getChildren()[3].rotation.y = -Math.PI;
+                actor.model.getChildren()[4].rotation.y = -Math.PI;
+                usmerjenost=2;
+            }
+            if(usmerjenost == 1){
+                actor.model.getChildren()[2].rotation.y = Math.PI/2;
+                actor.model.getChildren()[3].rotation.y = Math.PI/2;
+                actor.model.getChildren()[4].rotation.y = Math.PI/2;
+                usmerjenost=2;
+            }
             actor.moveBackwards = true;
             actor.moveForward = false;
         }
@@ -85,6 +159,7 @@ var move = function() {
     }
     if (actor.moveLeft) {
         pos.x += +0.3;
+        
     }
     if (actor.moveForward) {
         pos.z += -0.3;
@@ -160,11 +235,11 @@ var createScene = function() {
         console.log("walking effect loaded");
     }, { loop: true, autoplay: true });*/
 
-    var music = new BABYLON.Sound("music", "assets/diablo1.mp3", scene,
+    /*var music = new BABYLON.Sound("music", "assets/diablo1.mp3", scene,
         function () {
         // Sound has been downloaded & decoded
         music.play();
-        }, { loop: true, autoplay: true });
+        }, { loop: true, autoplay: true });*/
 
     //Creation of a repeated textured material
     var materialPlane = new BABYLON.StandardMaterial("texturePlane", scene);
@@ -201,6 +276,7 @@ var createScene = function() {
         //actor.model = new BABYLON.Mesh("characterModel", _this.scene);
         actor.model = BABYLON.Mesh.CreateCylinder("characterBox", 2, 2, 2, 6, 1, scene, false);
         t.loadedMeshes.forEach(function(m) {
+            //m.rotation.y = -Math.PI/2;
             m.position.y -= 1;
             m.parent = actor.model;
         });
@@ -250,7 +326,7 @@ for (var i = 0; i < enemyCount; i++) {
 
 
         t.loadedMeshes.forEach(function(m) {
-            m.position.y -= 1.6;
+            m.position.y -= 0;
             m.parent = enemy;
         });
 
