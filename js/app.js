@@ -82,19 +82,15 @@ var move = function() {
     var pos = actor.model.position;
     if (actor.moveRight) {
         pos.x += -0.3;
-        //camera.position.x += 0.3;
     }
     if (actor.moveLeft) {
         pos.x += +0.3;
-        //camera.position.x += -0.3;
     }
     if (actor.moveForward) {
         pos.z += -0.3;
-        //camera.position.z += 0.3;
     }
     if (actor.moveBackwards) {
         pos.z += +0.3;
-        //camera.position.z += -0.3;
     }
     if (actor.jump) {
         actor.model.position.y += 0.3;
@@ -124,12 +120,14 @@ var onPointerDown = function (evt) {
 
 // mouse over mesh event initializer
 var makeOverOut = function (mesh) {
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOutTrigger, mesh, "visibility", 0.05));
-    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh, "visibility", 0.6));
+    //var child = enemy.getChildren();
+    var child = mesh.getChildren()[0];    
+    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOutTrigger, child, "visibility", 0));
+    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, child, "visibility", 0.5));
+    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOutTrigger, mesh, "visibility", 0));
+    mesh.actionManager.registerAction(new BABYLON.SetValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh, "visibility", 0.05));
     mesh.actionManager.registerAction(new BABYLON.InterpolateValueAction(BABYLON.ActionManager.OnPointerOutTrigger, mesh, "scaling", new BABYLON.Vector3(1, 1, 1), 150));
-    mesh.actionManager.registerAction(new BABYLON.InterpolateValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh, "scaling", new BABYLON.Vector3(1.05, 1.05, 1.05), 150));
-    console.log("init hover done");
-    
+    mesh.actionManager.registerAction(new BABYLON.InterpolateValueAction(BABYLON.ActionManager.OnPointerOverTrigger, mesh, "scaling", new BABYLON.Vector3(1.05, 1.05, 1.05), 150));    
 }
 
 var createScene = function() {
@@ -137,6 +135,12 @@ var createScene = function() {
     scene = new BABYLON.Scene(engine);
 
     camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 30, 50), scene);
+    
+    /* Debu Free camera
+    var debugCamera = new BABYLON.FreeCamera("debugCamera", new BABYLON.Vector3(0, 5, -10), scene);
+    debugCamera.setTarget(new BABYLON.Vector3.Zero());
+    debugCamera.attachControl(canvas, false);
+    */
 
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), scene);
@@ -168,6 +172,7 @@ var createScene = function() {
     materialPlane.diffuseTexture.uScale = 55.0;//Repeat 5 times on the Vertical Axes
     materialPlane.diffuseTexture.vScale = 55.0;//Repeat 5 times on the Horizontal Axes
     materialPlane.backFaceCulling = false;//Always show the front and the back of an element
+    materialPlane.specularColor = new BABYLON.Color3(0,0,0); // no ground reflection
     ground.material = materialPlane;
 
     var box = BABYLON.Mesh.CreateBox("box", 3, scene);
@@ -195,11 +200,12 @@ var createScene = function() {
     modelLoad.onSuccess = function(t) {
         //actor.model = new BABYLON.Mesh("characterModel", _this.scene);
         actor.model = BABYLON.Mesh.CreateCylinder("characterBox", 2, 2, 2, 6, 1, scene, false);
-        //actor.model.scaling.y = 2;
         t.loadedMeshes.forEach(function(m) {
+            m.position.y -= 1;
             m.parent = actor.model;
         });
-        actor.model.scaling.scaleInPlace(1);
+        //actor.model.skeleton = t.loadedSkeletons[0];
+        //actor.model.scaling.scaleInPlace(1);
         //actor.model.rotation.y = -Math.PI/2;
         //actor.model.position.y = 0.5;
         actor.model.setEnabled(true);
@@ -229,16 +235,25 @@ enemyMat.diffuseColor = new BABYLON.Color3(1, 0, 0); //Red
 for (var i = 0; i < enemyCount; i++) {
     var enemyLoad = loader.addMeshTask("enemy"+i, "", "./assets/gow/", "gears-of-war-3-lambent-female.babylon");
     enemyLoad.onSuccess = function(t) {
-        var enemy = BABYLON.Mesh.CreateTorus("enemy"+i, 1, 0.7, 16, scene);
-        enemy.material = enemyMat;
+        var enemy = BABYLON.Mesh.CreateCylinder("enemy" + i, 3.8, 2, 2, 6, 1, scene, false);
         enemy.actionManager = new BABYLON.ActionManager(scene);
-        enemy.visibility = 0.05;
-        enemy.scale
+        enemy.visibility = 0;
+
+        var enemyTorus = BABYLON.Mesh.CreateTorus("enemyTorus" + i, 1.3, 0.2, 16, scene, false);
+        enemyTorus.position.y -= 1.7;
+        enemyTorus.parent = enemy;
+        enemyTorus.material = enemyMat;
+        enemyTorus.visibility = 0;
+        //console.log(enemy.getChildren());
         makeOverOut(enemy);
-        
+
+
+
         t.loadedMeshes.forEach(function(m) {
+            m.position.y -= 1.6;
             m.parent = enemy;
         });
+
         enemy.position.z = Math.random()*100;
         enemy.position.x = Math.random()*100;
         enemy.position.y = 0.5;
