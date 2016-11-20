@@ -12,6 +12,7 @@ var actor = {
         moveForward : false,
         moveBackwards : false,
         jump : 0,
+        fast : false,
         model: null
         };
 
@@ -24,7 +25,14 @@ var enemyCount= 10 // number of monsters to be generated;
 
 var healthBar = document.getElementById("healthBar");
 healthBar.value = 100;
-var fast = false;
+
+
+var rotateY = function(model, angle) {
+    var children = model.getChildren();
+    children.forEach(function(element) {
+        element.rotation.y = angle;
+    });
+};
 
 //  Register key presses
 var initMovement = function() {
@@ -37,21 +45,15 @@ var initMovement = function() {
         // To the left
         if (evt.keyCode == 65) {
             if(usmerjenost == 0){
-                actor.model.getChildren()[2].rotation.y = -Math.PI/2;
-                actor.model.getChildren()[3].rotation.y = -Math.PI/2;
-                actor.model.getChildren()[4].rotation.y = -Math.PI/2;
+                rotateY(actor.model, -Math.PI/2);
                 usmerjenost=3;
             }
             if(usmerjenost == 1){
-                actor.model.getChildren()[2].rotation.y = -Math.PI;
-                actor.model.getChildren()[3].rotation.y = -Math.PI;
-                actor.model.getChildren()[4].rotation.y = -Math.PI;
+                rotateY(actor.model, Math.PI);
                 usmerjenost=3;
             }
             if(usmerjenost == 2){
-                actor.model.getChildren()[2].rotation.y = Math.PI/2;
-                actor.model.getChildren()[3].rotation.y = Math.PI/2;
-                actor.model.getChildren()[4].rotation.y = Math.PI/2;
+                rotateY(actor.model, Math.PI/2);
                 usmerjenost=3;
             }
             actor.moveLeft = true;
@@ -61,21 +63,15 @@ var initMovement = function() {
         else if (evt.keyCode == 68) {
             // To the right
             if(usmerjenost == 0){
-                actor.model.getChildren()[2].rotation.y = Math.PI/2;
-                actor.model.getChildren()[3].rotation.y = Math.PI/2;
-                actor.model.getChildren()[4].rotation.y = Math.PI/2;
+                rotateY(actor.model, Math.PI/2);
                 usmerjenost=1;
             }
             if(usmerjenost == 3){
-                actor.model.getChildren()[2].rotation.y = -Math.PI;
-                actor.model.getChildren()[3].rotation.y = -Math.PI;
-                actor.model.getChildren()[4].rotation.y = -Math.PI;
+                rotateY(actor.model, Math.PI);
                 usmerjenost=1;
             }
             if(usmerjenost == 2){
-                actor.model.getChildren()[2].rotation.y = -Math.PI/2;
-                actor.model.getChildren()[3].rotation.y = -Math.PI/2;
-                actor.model.getChildren()[4].rotation.y = -Math.PI/2;
+                rotateY(actor.model, -Math.PI/2);
                 usmerjenost=1;
             }
             actor.moveRight = true;
@@ -84,21 +80,15 @@ var initMovement = function() {
         else if (evt.keyCode == 87) {
             // Forward
             if(usmerjenost == 3){
-                actor.model.getChildren()[2].rotation.y = Math.PI/2;
-                actor.model.getChildren()[3].rotation.y = Math.PI/2;
-                actor.model.getChildren()[4].rotation.y = Math.PI/2;
+                rotateY(actor.model, Math.PI/2);
                 usmerjenost=0;
             }
             if(usmerjenost == 2){
-                actor.model.getChildren()[2].rotation.y = -Math.PI;
-                actor.model.getChildren()[3].rotation.y = -Math.PI;
-                actor.model.getChildren()[4].rotation.y = -Math.PI;
+                rotateY(actor.model, Math.PI);
                 usmerjenost=0;
             }
             if(usmerjenost == 1){
-                actor.model.getChildren()[2].rotation.y = -Math.PI/2;
-                actor.model.getChildren()[3].rotation.y = -Math.PI/2;
-                actor.model.getChildren()[4].rotation.y = -Math.PI/2;
+                rotateY(actor.model, -Math.PI/2);
                 usmerjenost=0;
             }
             actor.moveBackwards = false;
@@ -107,21 +97,15 @@ var initMovement = function() {
         else if (evt.keyCode == 83) {
             // Backwards
             if(usmerjenost == 3){
-                actor.model.getChildren()[2].rotation.y = -Math.PI/2;
-                actor.model.getChildren()[3].rotation.y = -Math.PI/2;
-                actor.model.getChildren()[4].rotation.y = -Math.PI/2;
+                rotateY(actor.model, -Math.PI/2);
                 usmerjenost=2;
             }
             if(usmerjenost == 0){
-                actor.model.getChildren()[2].rotation.y = -Math.PI;
-                actor.model.getChildren()[3].rotation.y = -Math.PI;
-                actor.model.getChildren()[4].rotation.y = -Math.PI;
+                rotateY(actor.model, Math.PI);
                 usmerjenost=2;
             }
             if(usmerjenost == 1){
-                actor.model.getChildren()[2].rotation.y = Math.PI/2;
-                actor.model.getChildren()[3].rotation.y = Math.PI/2;
-                actor.model.getChildren()[4].rotation.y = Math.PI/2;
+                rotateY(actor.model, Math.PI/2);
                 usmerjenost=2;
             }
             actor.moveBackwards = true;
@@ -131,10 +115,10 @@ var initMovement = function() {
             actor.jump = 18; // the value to be decreased as the model gradially jumps higher
         }
         if (evt.keyCode == 16) {
-            fast = true;
+            actor.fast = true;
         }
         else{
-            fast = false;
+            actor.fast = false;
         }
     };
 
@@ -160,38 +144,22 @@ var initMovement = function() {
 //Movement
 var move = function() {
     var pos = actor.model.position;
+    var change = 0.3;
+    if (actor.fast) {
+        change = 0.5;
+    }
     if (actor.moveRight) {
-        if(fast==true){
-            pos.x += -0.8;
-        }
-        else{
-            pos.x += -0.3;
-        }
+        pos.x -= change;
     }
     if (actor.moveLeft) {
-        if(fast==true){
-            pos.x += +0.8;
-        }
-        else{
-            pos.x += +0.3;
-        }
+        pos.x += change;
         
     }
     if (actor.moveForward) {
-        if(fast==true){
-            pos.z += -0.8;
-        }
-        else{
-            pos.z += -0.3;
-        }
+        pos.z -= change;
     }
     if (actor.moveBackwards) {
-        if(fast==true){
-            pos.z += +0.8;
-        }
-        else{
-            pos.z += +0.3;
-        }
+        pos.z += change;
     }
     if (actor.jump) {
         actor.model.position.y += 0.3;
