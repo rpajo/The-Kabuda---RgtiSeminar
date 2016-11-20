@@ -185,7 +185,28 @@ var onPointerDown = function (evt) {
     if (pickInfo.hit) {
         currentMesh = pickInfo.pickedMesh;
     }
-    currentMesh.health=currentMesh.health-1;
+
+    var xNear = true;
+    var zNear = true;
+
+    if (currentMesh.position.x < actor.model.position.x - 5) {
+        xNear = false;
+    } 
+    else if(currentMesh.position.x > actor.model.position.x + 5) {
+        xNear = false;
+    }
+    if(currentMesh.position.z < actor.model.position.z - 5) {
+        zNear = false;
+    }
+    else if(currentMesh.position.z > actor.model.position.z + 5) {
+        zNear = false;
+    }
+
+    if(xNear && zNear) {
+        currentMesh.health=currentMesh.health-1;
+    }
+    
+    
     if(currentMesh.health==0){        
         currentMesh.dispose();
         enemies[currentMesh.index] = null;  
