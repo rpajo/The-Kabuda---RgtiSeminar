@@ -249,7 +249,7 @@ var createScene = function() {
 
     //Creation of a repeated textured material
     var materialPlane = new BABYLON.StandardMaterial("texturePlane", scene);
-    materialPlane.diffuseTexture = new BABYLON.Texture("textures/ground.jpg", scene);
+    materialPlane.diffuseTexture = new BABYLON.Texture("textures/ground_arena.jpg", scene);
     materialPlane.diffuseTexture.uScale = 55.0;//Repeat 5 times on the Vertical Axes
     materialPlane.diffuseTexture.vScale = 55.0;//Repeat 5 times on the Horizontal Axes
     materialPlane.backFaceCulling = false;//Always show the front and the back of an element
@@ -363,8 +363,6 @@ for (var i = 0; i < enemyCount; i++) {
     };
 
     loader.load();
-
-
     
 
     scene.onPointerDown = function (evt, pickResult) {
@@ -382,6 +380,25 @@ for (var i = 0; i < enemyCount; i++) {
         }
         
     };
+
+   
+    var a = BABYLON.Mesh.CreateBox("box", 4, scene);
+    var b = BABYLON.Mesh.CreateBox("box", 4, scene);
+
+    a.position.x += 4;
+    b.position.x += 5;
+    b.rotation.y += Math.PI/8;
+
+    var aCSG = BABYLON.CSG.FromMesh(a);
+    var bCSG = BABYLON.CSG.FromMesh(b);
+
+    var subCSG = bCSG.subtract(aCSG);
+
+    // Disposing original meshes since we don't want to see them on the scene
+    a.dispose();
+    b.dispose();
+
+    subCSG.toMesh("csg", new BABYLON.StandardMaterial("mat", scene), scene);
 
     // return the created scene
     return scene;
