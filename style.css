@@ -53,3 +53,31 @@ progress {
 }
 
 progress::-moz-progress-bar { background: red; }
+
+#manaDisplay {
+    position:absolute;
+    top:115px;
+    left : 20px;
+    color:white;
+    font-size: 2em;
+}
+
+#manaBar {
+    position: absolute;
+    top: 150px;
+    left : 20px;
+    width: 190px;
+}
+
+progress2 {
+  color: blue;
+  font-size: .6em;
+  line-height: 1.5em;
+  text-indent: .5em;
+  width: 15em;
+  height: 1.8em;
+  border: 1px solid grey;
+  background: #fff;
+}
+
+progress2::-moz-progress-bar { background: blue; }

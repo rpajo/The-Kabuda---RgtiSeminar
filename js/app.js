@@ -15,7 +15,8 @@ var actor = {
         fast : false,
         heal : 0, // healing amout
         aoe : 0, // damage explosive skill
-        model: null
+        model: null,
+        mana: 100
         };
 
 var charModel, asset, camera, scene, ground, currentMesh;
@@ -28,6 +29,9 @@ var enemyCount= 10 // number of monsters to be generated;
 
 var healthBar = document.getElementById("healthBar");
 healthBar.value = 100;
+
+var manaBar = document.getElementById("manaBar");
+manaBar.value = 100;
 
 
 var rotateY = function(model, angle) {
@@ -175,15 +179,34 @@ var initMovement = function() {
         }
         else if (evt.keyCode == 49) {
             // skill on number 1
-            actor.heal = 20;
-            // Start the particle system
-            particleHeal.start();
+            if(actor.mana>=40){
+                actor.mana=actor.mana-40;
+                actor.heal=20;
+                manaBar.value = Math.floor(actor.mana);
+                document.getElementById("manaDisplay").innerHTML = "MANA: " + Math.round(actor.mana*100)/100;
+                particleHeal.start();
+            }
+            
         }
         else if (evt.keyCode == 50) {
-            // skill on number 1
-            actor.aoe = 20;
-            // Start the particle system
-            particleAoe.start();
+            // skill on number 2
+            if(actor.mana>=60){
+                actor.mana=actor.mana-60;
+                actor.aoe = 20;
+                manaBar.value = Math.floor(actor.mana);
+                document.getElementById("manaDisplay").innerHTML = "MANA: " + Math.round(actor.mana*100)/100;
+                particleAoe.start();
+            }
+        }
+        if(actor.mana<100){
+            setTimeout(function(){
+                actor.mana=actor.mana+5;
+                if(actor.mana>100){
+                    actor.mana=100;
+                }
+                manaBar.value = Math.floor(actor.mana);
+                document.getElementById("manaDisplay").innerHTML = "MANA: " + Math.round(actor.mana*100)/100;
+        }, 10000);
         }
 
 
