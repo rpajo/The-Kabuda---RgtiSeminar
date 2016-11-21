@@ -17,11 +17,11 @@ var actor = {
         };
 
 var charModel, asset, camera, scene, ground, currentMesh;
-var walkingEffect, swordEffect, dyingEffect; //sound effects
+var walkingEffect, swordEffect, dyingEffect, missEffect; //sound effects
 var enemies = [];
 var enemy;
 
-var enemyCount= 0 // number of monsters to be generated;
+var enemyCount= 10 // number of monsters to be generated;
 
 var healthBar = document.getElementById("healthBar");
 healthBar.value = 100;
@@ -152,7 +152,6 @@ var move = function() {
     }
     if (actor.moveLeft) {
         pos.x += change;
-        
     }
     if (actor.moveForward) {
         pos.z -= change;
@@ -172,39 +171,47 @@ var onPointerDown = function (evt) {
     if (evt.button !== 0) {
         return;
     }
-    swordEffect.play();
+    
     // check if we are under a mesh
     var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh !== ground; });
     if (pickInfo.hit) {
         currentMesh = pickInfo.pickedMesh;
     }
 
-    var xNear = true;
-    var zNear = true;
+    if (currentMesh != undefined) {
+        var xNear = true;
+        var zNear = true;
 
-    if (currentMesh.position.x < actor.model.position.x - 5) {
-        xNear = false;
-    } 
-    else if(currentMesh.position.x > actor.model.position.x + 5) {
-        xNear = false;
-    }
-    if(currentMesh.position.z < actor.model.position.z - 5) {
-        zNear = false;
-    }
-    else if(currentMesh.position.z > actor.model.position.z + 5) {
-        zNear = false;
-    }
+        console.log(currentMesh);
 
-    if(xNear && zNear) {
-        currentMesh.health=currentMesh.health-1;
+        if (currentMesh.position.x < actor.model.position.x - 5) {
+            xNear = false;
+        } 
+        else if(currentMesh.position.x > actor.model.position.x + 5) {
+            xNear = false;
+        }
+        if(currentMesh.position.z < actor.model.position.z - 5) {
+            zNear = false;
+        }
+        else if(currentMesh.position.z > actor.model.position.z + 5) {
+            zNear = false;
+        }
+
+        if(xNear && zNear) {
+            swordEffect.play();
+            currentMesh.health=currentMesh.health-1;
+        }
+        else missEffect.play();
+        
+        if(currentMesh.health==0){        
+            currentMesh.dispose();
+            enemies[currentMesh.index] = null;  
+            dyingEffect.play();     
+        }
     }
     
-    
-    if(currentMesh.health==0){        
-        currentMesh.dispose();
-        enemies[currentMesh.index] = null;  
-        dyingEffect.play();     
-    }
+
+    currentMesh = undefined;
 }
 
 // mouse over mesh event initializer
@@ -248,15 +255,17 @@ var createScene = function() {
     ground = BABYLON.Mesh.CreateGround('ground', 400, 400, 2, scene);
 
     
-    swordEffect = new BABYLON.Sound("sword", "assets/sword.mp3", scene);
+    swordEffect = new BABYLON.Sound("sword", "assets/sounds/sword.mp3", scene);
 
-    dyingEffect = new BABYLON.Sound("dying", "assets/dying.mp3", scene);
+    dyingEffect = new BABYLON.Sound("dying", "assets/sounds/dying.mp3", scene);
 
-    /*walkingEffect = new BABYLON.Sound("walking", "assets/walking2.wav", scene, function() {
+    missEffect = new BABYLON.Sound("miss", "assets/sounds/miss.wav", scene);
+
+    /*walkingEffect = new BABYLON.Sound("walking", "assets/sounds/walking2.wav", scene, function() {
         console.log("walking effect loaded");
     }, { loop: true, autoplay: true });*/
 
-    /*var music = new BABYLON.Sound("music", "assets/diablo1.mp3", scene,
+    /*var music = new BABYLON.Sound("music", "assets/sounds/diablo1.mp3", scene,
         function () {
         // Sound has been downloaded & decoded
         music.play();
@@ -350,11 +359,9 @@ var createScene = function() {
         var towerLoad = loader.addMeshTask("towerMesh"+i, "", "./assets/wall/", "Only Tower.obj");
         towerLoad.onSuccess = function(t) {
             var index = parseInt(t.name[9]);
-            console.log(index);
             t.loadedMeshes.forEach(function(mesh) {
                 mesh.scaling = new BABYLON.Vector3(0.07, 0.07, 0.07);
                 mesh.position.y += -7;
-                console.log(mesh);
                 mesh.material = materialWall;
                 mesh.parent = towers[index];
             });
