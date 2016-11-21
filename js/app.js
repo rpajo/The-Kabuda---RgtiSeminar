@@ -13,11 +13,14 @@ var actor = {
         moveBackwards : false,
         jump : 0,
         fast : false,
+        heal : 0, // healing amout
+        aoe : 0, // damage explosive skill
         model: null
         };
 
 var charModel, asset, camera, scene, ground, currentMesh;
 var walkingEffect, swordEffect, dyingEffect, missEffect; //sound effects
+var particleHeal, particleAoe; // particle effects
 var enemies = [];
 var enemy;
 
@@ -34,6 +37,63 @@ var rotateY = function(model, angle) {
     });
 };
 
+var initParticles = function() {
+    //Healing particle effect
+    particleHeal = new BABYLON.ParticleSystem("particleHeal", 2000, scene);
+    //Texture of each particle
+    particleHeal.particleTexture = new BABYLON.Texture("textures/particles/particle2.png", scene);
+    particleHeal.emitter = actor.model; // the starting object, the emitter
+    particleHeal.minSize = 0.8;
+    particleHeal.maxSize = 1.5;
+    // Life time of each particle (random between...
+    particleHeal.minLifeTime = 0.3;
+    particleHeal.maxLifeTime = 0.5;
+
+    // Colors of all particles
+    particleHeal.color1 = new BABYLON.Color4(0, 1, 0, 1.0);
+    // Blend mode : BLENDMODE_ONEONE, or BLENDMODE_STANDARD
+    particleHeal.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+
+    // Direction of each particle after it has been emitted
+    particleHeal.direction1 = new BABYLON.Vector3(0, 8, 3);
+
+    // Speed
+    particleHeal.minEmitPower = 1;
+    particleHeal.maxEmitPower = 3;
+    particleHeal.updateSpeed = 0.005;
+
+    // Emission rate
+    particleHeal.emitRate = 500;
+
+
+    //explotion partical effect
+    particleAoe = new BABYLON.ParticleSystem("particleDamage", 2000, scene);
+    //Texture of each particle
+    particleAoe.particleTexture = new BABYLON.Texture("textures/particles/particle4.png", scene);
+    particleAoe.emitter = actor.model; // the starting object, the emitter
+    particleAoe.minSize = 3;
+    particleAoe.maxSize = 5;
+    // Life time of each particle (random between...
+    particleAoe.minLifeTime = 0.2;
+    particleAoe.maxLifeTime = 0.3;
+
+    // Colors of all particles
+    particleAoe.color1 = new BABYLON.Color4(1, 0, 0, 1.0);
+    // Blend mode : BLENDMODE_ONEONE, or BLENDMODE_STANDARD
+    particleAoe.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+
+    // Direction of each particle after it has been emitted
+    particleAoe.direction1 = new BABYLON.Vector3(10, 0, 10);
+    particleAoe.direction2 = new BABYLON.Vector3(-10, 0, -10);
+
+    // Speed
+    particleAoe.minEmitPower = 2;
+    particleAoe.maxEmitPower = 5;
+    particleAoe.updateSpeed = 0.1;
+
+    // Emission rate
+    particleAoe.emitRate = 500;
+}
 //  Register key presses
 var initMovement = function() {
     //console.log("MOVING");
@@ -113,6 +173,20 @@ var initMovement = function() {
         else if (evt.keyCode == 32) {
             actor.jump = 18; // the value to be decreased as the model gradially jumps higher
         }
+        else if (evt.keyCode == 49) {
+            // skill on number 1
+            actor.heal = 20;
+            // Start the particle system
+            particleHeal.start();
+        }
+        else if (evt.keyCode == 50) {
+            // skill on number 1
+            actor.aoe = 20;
+            // Start the particle system
+            particleAoe.start();
+        }
+
+
         if (evt.keyCode == 16) {
             actor.fast = true;
         }
@@ -166,6 +240,13 @@ var move = function() {
 };
 
 
+var killEnemy = function(enemy) {
+    if(enemy.health==0){        
+        enemy.dispose();
+        enemies[enemy.index] = null;  
+        dyingEffect.play();     
+    }
+}
 // Pointer Down event handler
 var onPointerDown = function (evt) {
     if (evt.button !== 0) {
@@ -181,8 +262,6 @@ var onPointerDown = function (evt) {
     if (currentMesh != undefined) {
         var xNear = true;
         var zNear = true;
-
-        console.log(currentMesh);
 
         if (currentMesh.position.x < actor.model.position.x - 5) {
             xNear = false;
@@ -202,12 +281,8 @@ var onPointerDown = function (evt) {
             currentMesh.health=currentMesh.health-1;
         }
         else missEffect.play();
-        
-        if(currentMesh.health==0){        
-            currentMesh.dispose();
-            enemies[currentMesh.index] = null;  
-            dyingEffect.play();     
-        }
+
+        killEnemy(currentMesh);
     }
     
 
@@ -222,7 +297,6 @@ var makeOverOut = function (mesh) {
     mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(ev){	
         mesh.visibility = 0.05;
         child.visibility = 0.5;
-		scene.hoverCursor = " url('http://jerome.bousquie.fr/BJS/test/viseur.png') 12 12, auto ";
 	}));
 
     mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(ev) {
@@ -355,7 +429,6 @@ var createScene = function() {
     materialWall.specularColor = new BABYLON.Color3(0,0,0); // no ground reflection
 
     for (var i = 0; i < 4; i++) {
-        console.log("loading tower");
         var towerLoad = loader.addMeshTask("towerMesh"+i, "", "./assets/wall/", "Only Tower.obj");
         towerLoad.onSuccess = function(t) {
             var index = parseInt(t.name[9]);
@@ -368,17 +441,6 @@ var createScene = function() {
             towers[index].isVisible = false;
         };
     }
-    /*console.log("loading tower");
-    var towerLoad = loader.addMeshTask("towerMesh1", "", "./assets/wall/", "Only Tower.obj");
-    towerLoad.onSuccess = function(t) {
-        t.loadedMeshes.forEach(function(mesh) {
-            mesh.scaling = new BABYLON.Vector3(0.07, 0.07, 0.07);
-            mesh.position = new BABYLON.Vector3(0, -7 ,0);
-            console.log(mesh);
-            mesh.material = materialWall;
-            mesh.parent = towerMesh1;
-        });
-    };*/
 
 
     var modelLoad = loader.addMeshTask("actor", "", "./assets/Varian/", "psc-warrior.babylon");
@@ -411,6 +473,7 @@ var createScene = function() {
 
         actor.model.actionManager = new BABYLON.ActionManager(scene);
         
+        initParticles();
 
         //walkingEffect.attachToMesh(actor.model); 
     };
@@ -486,7 +549,7 @@ for (var i = 0; i < enemyCount; i++) {
         
     };
 
-   
+/*   
     var a = BABYLON.Mesh.CreateBox("box", 4, scene);
     var b = BABYLON.Mesh.CreateBox("box", 4, scene);
 
@@ -504,7 +567,8 @@ for (var i = 0; i < enemyCount; i++) {
     b.dispose();
 
     subCSG.toMesh("csg", new BABYLON.StandardMaterial("mat", scene), scene);
-
+    subCSG.physicsImpostor =  new BABYLON.PhysicsImpostor(subCSG, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 5, restitution: 0.1 }, scene);
+*/
     // return the created scene
     return scene;
 }
@@ -512,9 +576,7 @@ for (var i = 0; i < enemyCount; i++) {
 var run = function(scene){
     engine.runRenderLoop(function() {
         
-        actor.model.rotationQuaternion.x = 0;
-        actor.model.rotationQuaternion.z = 0;
-
+        actor.model.rotationQuaternion = new BABYLON.Quaternion(0,0,0,1);
 
         if (actor.health > 0) {
             move(); 
@@ -548,11 +610,35 @@ var run = function(scene){
                     actor.health += -0.1;
                     healthBar.value = Math.floor(actor.health);
                     document.getElementById("healthDisplay").innerHTML = "HEALTH: " + Math.round(actor.health*100)/100;
+
+                    // if explosive skill is active
+                    if (actor.aoe > 0) {
+                        enemy.health--;
+                        killEnemy(enemy);
+                    }
                 }
             }
             
-        }, this);
-        
+        });
+
+        // if healing is active
+        if (actor.heal > 0) {
+            actor.health += 0.4;
+            actor.heal += -0.4;
+            healthBar.value = Math.floor(actor.health);
+            document.getElementById("healthDisplay").innerHTML = "HEALTH: " + Math.round(actor.health*100)/100;
+            if (actor.heal <= 0) {
+                particleHeal.stop();
+            }
+        }
+
+        if (actor.aoe > 0) {
+            actor.aoe += -1;
+            if (actor.aoe <= 0) {
+                particleAoe.stop();
+            }
+        }
+
             
         scene.render();
     });
@@ -571,17 +657,4 @@ scene.onDispose = function () {
 window.addEventListener('resize', function() {
     engine.resize();
 });
-
-
-/*
-var getGroundPosition = function () {
-    // Use a predicate to get position on the ground
-    var pickinfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh == ground; });
-    if (pickinfo.hit) {
-        return pickinfo.pickedPoint;
-    }
-
-    return null;
-}
-*/
 
