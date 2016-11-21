@@ -21,7 +21,7 @@ var walkingEffect, swordEffect, dyingEffect; //sound effects
 var enemies = [];
 var enemy;
 
-var enemyCount= 10 // number of monsters to be generated;
+var enemyCount= 0 // number of monsters to be generated;
 
 var healthBar = document.getElementById("healthBar");
 healthBar.value = 100;
@@ -41,7 +41,6 @@ var initMovement = function() {
     // When a key is pressed, set the movement
     var usmerjenost = 0; // gor-0, desno-1, dol-2, levo-3
     var onKeyDown = function(evt) {
-        // console.log(evt.keyCode);
         // To the left
         if (evt.keyCode == 65) {
             if(usmerjenost == 0){
@@ -168,12 +167,6 @@ var move = function() {
 };
 
 
-
-
-
-
-
-
 // Pointer Down event handler
 var onPointerDown = function (evt) {
     if (evt.button !== 0) {
@@ -241,9 +234,10 @@ var createScene = function() {
 
     camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 30, 50), scene);
     
-    /* Debu Free camera
-    var debugCamera = new BABYLON.FreeCamera("debugCamera", new BABYLON.Vector3(0, 5, -10), scene);
-    debugCamera.setTarget(new BABYLON.Vector3.Zero());
+    // Debug Free camera
+    /*
+    var debugCamera = new BABYLON.FreeCamera("debugCamera", new BABYLON.Vector3(0, 20, 10), scene);
+    debugCamera.setTarget(new BABYLON.Vector3(0,0,0));
     debugCamera.attachControl(canvas, false);
     */
 
@@ -298,6 +292,88 @@ var createScene = function() {
         // The loader
     var loader =  new BABYLON.AssetsManager(scene);
 
+    // horizontal walls
+    for (var i = 0; i < 5; i++) {
+        for (var j = 0; j < 2; j++) {
+            var wallLoad = loader.addMeshTask("wall"+i+j, "", "./assets/wall/", "mage_wall.babylon");
+            wallLoad.onSuccess = function(t) {
+                var index = [parseInt(t.name[4]), parseInt(t.name[5])];
+                var mesh = t.loadedMeshes[0];
+                mesh.position = new BABYLON.Vector3((index[0]-2)*15 + 5, 0, 50 - 100*index[1]);
+                mesh.scaling = new BABYLON.Vector3(2.5,2.5,2.5);
+                mesh.physicsImpostor = new BABYLON.PhysicsImpostor(mesh, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 5000, restitution: 0 }, scene);
+                // if (index[1] == 0) {
+                //     mesh.rotation.y = Math.PI;
+                // }
+            };   
+        }
+    }
+    // vertical walls
+    for (var i = 0; i < 5; i++) {
+        for (var j = 0; j < 2; j++) {
+            var wallLoad = loader.addMeshTask("wall"+i+j, "", "./assets/wall/", "mage_wall.babylon");
+            wallLoad.onSuccess = function(t) {
+                var index = [parseInt(t.name[4]), parseInt(t.name[5])];
+                var mesh = t.loadedMeshes[0];
+                mesh.rotation.y = Math.PI/2;
+                mesh.position = new BABYLON.Vector3(-40  + 90*index[1], 0, -30 + 15*index[0]);
+                mesh.scaling = new BABYLON.Vector3(2.5,2.5,2.5);
+                mesh.physicsImpostor = new BABYLON.PhysicsImpostor(mesh, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 5000, restitution: 0 }, scene);
+                // if (index[1] == 1) {
+                //     mesh.rotation.y = -Math.PI/2;
+                // }
+            };   
+        }
+    }
+
+    var towerMesh1 = BABYLON.Mesh.CreateCylinder("tower1", 15, 15, 15, 6, 1, scene, false);
+    towerMesh1.position = new BABYLON.Vector3(-38, 8 ,45);
+    towerMesh1.physicsImpostor = new BABYLON.PhysicsImpostor(towerMesh1, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 5000, restitution: 0 }, scene);
+    var towerMesh2 = BABYLON.Mesh.CreateCylinder("tower2", 15, 15, 15, 6, 1, scene, false);
+    towerMesh2.position = new BABYLON.Vector3(50, 8 ,45);
+    towerMesh1.physicsImpostor = new BABYLON.PhysicsImpostor(towerMesh2, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 5000, restitution: 0 }, scene);
+    var towerMesh3 = BABYLON.Mesh.CreateCylinder("tower3", 15, 15, 15, 6, 1, scene, false);
+    towerMesh3.position = new BABYLON.Vector3(-39, 8 ,-47);
+    towerMesh3.physicsImpostor = new BABYLON.PhysicsImpostor(towerMesh3, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 5000, restitution: 0 }, scene);
+    var towerMesh4 = BABYLON.Mesh.CreateCylinder("tower4", 15, 15, 15, 6, 1, scene, false);
+    towerMesh4.position = new BABYLON.Vector3(52, 8 ,-47);
+    towerMesh4.physicsImpostor = new BABYLON.PhysicsImpostor(towerMesh4, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 5000, restitution: 0 }, scene);
+    var towers = [towerMesh1, towerMesh2, towerMesh3, towerMesh4];
+
+    var materialWall = new BABYLON.StandardMaterial("towerTex", scene);
+    materialWall.diffuseTexture = new BABYLON.Texture("textures/castle.jpg", scene);
+    materialWall.backFaceCulling = true;//Always show the front and the back of an element
+    materialWall.specularColor = new BABYLON.Color3(0,0,0); // no ground reflection
+
+    for (var i = 0; i < 4; i++) {
+        console.log("loading tower");
+        var towerLoad = loader.addMeshTask("towerMesh"+i, "", "./assets/wall/", "Only Tower.obj");
+        towerLoad.onSuccess = function(t) {
+            var index = parseInt(t.name[9]);
+            console.log(index);
+            t.loadedMeshes.forEach(function(mesh) {
+                mesh.scaling = new BABYLON.Vector3(0.07, 0.07, 0.07);
+                mesh.position.y += -7;
+                console.log(mesh);
+                mesh.material = materialWall;
+                mesh.parent = towers[index];
+            });
+            towers[index].isVisible = false;
+        };
+    }
+    /*console.log("loading tower");
+    var towerLoad = loader.addMeshTask("towerMesh1", "", "./assets/wall/", "Only Tower.obj");
+    towerLoad.onSuccess = function(t) {
+        t.loadedMeshes.forEach(function(mesh) {
+            mesh.scaling = new BABYLON.Vector3(0.07, 0.07, 0.07);
+            mesh.position = new BABYLON.Vector3(0, -7 ,0);
+            console.log(mesh);
+            mesh.material = materialWall;
+            mesh.parent = towerMesh1;
+        });
+    };*/
+
+
     var modelLoad = loader.addMeshTask("actor", "", "./assets/Varian/", "psc-warrior.babylon");
     modelLoad.onSuccess = function(t) {
         //actor.model = new BABYLON.Mesh("characterModel", _this.scene);
@@ -308,6 +384,7 @@ var createScene = function() {
             m.parent = actor.model;
         });
         //actor.model.skeleton = t.loadedSkeletons[0];
+        
         //actor.model.scaling.scaleInPlace(1);
         //actor.model.rotation.y = -Math.PI/2;
         //actor.model.position.y = 0.5;
@@ -315,7 +392,7 @@ var createScene = function() {
         asset = {meshes: actor.model};
 
         
-        actor.model.physicsImpostor = new BABYLON.PhysicsImpostor(actor.model, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 1000, restitution: 0 }, scene);
+        actor.model.physicsImpostor = new BABYLON.PhysicsImpostor(actor.model, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 100, restitution: 0 }, scene);
         actor.model.isVisible = false;
 
         actor.model.position.z = 10;
@@ -363,7 +440,7 @@ for (var i = 0; i < enemyCount; i++) {
         asset = {meshes: enemy};
 
         
-        enemy.physicsImpostor = new BABYLON.PhysicsImpostor(enemy, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 500, restitution: 0.1 }, scene);
+        enemy.physicsImpostor = new BABYLON.PhysicsImpostor(enemy, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 5, restitution: 0.1 }, scene);
         enemy.isVisible = true;
 
         
