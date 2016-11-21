@@ -665,7 +665,12 @@ var run = function(scene){
             move(); 
         }
         else{
-            window.alert("You suck. You should kill yourself. Oh, you are already dead xD");
+            var r = confirm("You dieded xD Want to play again?");
+            if (r == true) {
+                location.reload();
+            } else {
+                alert("Okej pa ne.");
+            }
         }
 
         var nearX, nearZ;
