@@ -98,6 +98,29 @@ var initParticles = function() {
     // Emission rate
     particleAoe.emitRate = 500;
 }
+
+var myInterval = 0;
+
+// STARTS and Resets the loop if any
+function startLoop() {
+    if(myInterval > 0) clearInterval(myInterval);
+    myInterval = setInterval( "addMana()", 2500 );  // run
+}
+
+function addMana()
+{
+    
+    if(actor.mana<100){
+        console.log("manaLoop");
+        actor.mana=actor.mana+5;
+        if(actor.mana>100){
+            actor.mana=100;
+        }
+        manaBar.value = Math.floor(actor.mana);
+        document.getElementById("manaDisplay").innerHTML = "MANA: " + Math.round(actor.mana*100)/100;
+    }
+}
+
 //  Register key presses
 var initMovement = function() {
     //console.log("MOVING");
@@ -197,16 +220,6 @@ var initMovement = function() {
                 document.getElementById("manaDisplay").innerHTML = "MANA: " + Math.round(actor.mana*100)/100;
                 particleAoe.start();
             }
-        }
-        if(actor.mana<100){
-            setTimeout(function(){
-                actor.mana=actor.mana+5;
-                if(actor.mana>100){
-                    actor.mana=100;
-                }
-                manaBar.value = Math.floor(actor.mana);
-                document.getElementById("manaDisplay").innerHTML = "MANA: " + Math.round(actor.mana*100)/100;
-        }, 10000);
         }
 
 
@@ -427,6 +440,7 @@ var createScene = function() {
 
     console.log("init movement")
     initMovement();
+    startLoop();
 
     // The function ImportMesh will import our custom model in the scene given in parameter
     var _this  = this;
@@ -573,8 +587,8 @@ for (var i = 0; i < enemyCount; i++) {
 	        //shadowGenerator.useVarianceShadowMap = true;
         });
 
-        enemy.position.z = Math.random()*100;
-        enemy.position.x = Math.random()*100;
+        enemy.position.z = Math.random()*50;
+        enemy.position.x = Math.random()*50;
         enemy.position.y = 0.5;
 
         asset = {meshes: enemy};
