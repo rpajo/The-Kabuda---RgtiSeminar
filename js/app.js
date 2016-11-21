@@ -323,11 +323,20 @@ var createScene = function() {
     */
 
     // create a basic light, aiming 0,1,0 - meaning, to the sky
-    var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), scene);
+    var hemiLight = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,-5,0), scene);
+
+    var light = new BABYLON.DirectionalLight('light1', new BABYLON.Vector3(-1,-2,-1), scene);
+    light.position = new BABYLON.Vector3(20, 40, 20);
+	light.intensity = 0.7;
+
+    // shadow generator
+    var shadowGenerator = new BABYLON.ShadowGenerator(2048, light);
+    //shadowGenerator.usePoissonSampling = true;
+    shadowGenerator.useBlurVarianceShadowMap = true;
 
     // create a built-in "ground" shape; its constructor takes the same 5 params as the sphere's one
-    ground = BABYLON.Mesh.CreateGround('ground', 400, 400, 2, scene);
-
+    ground = BABYLON.Mesh.CreateGround('ground', 300, 300, 2, scene);
+    ground.receiveShadows = true;
     
     swordEffect = new BABYLON.Sound("sword", "assets/sounds/sword.mp3", scene);
 
@@ -348,10 +357,10 @@ var createScene = function() {
     //Creation of a repeated textured material
     var materialPlane = new BABYLON.StandardMaterial("texturePlane", scene);
     materialPlane.diffuseTexture = new BABYLON.Texture("textures/ground_arena.jpg", scene);
-    materialPlane.diffuseTexture.uScale = 55.0;//Repeat 5 times on the Vertical Axes
-    materialPlane.diffuseTexture.vScale = 55.0;//Repeat 5 times on the Horizontal Axes
+    materialPlane.diffuseTexture.uScale = 50.0;//Repeat 5 times on the Vertical Axes
+    materialPlane.diffuseTexture.vScale = 50.0;//Repeat 5 times on the Horizontal Axes
     materialPlane.backFaceCulling = false;//Always show the front and the back of an element
-    materialPlane.specularColor = new BABYLON.Color3(0,0,0); // no ground reflection
+    materialPlane.specularColor = new BABYLON.Color3(0.1,0.1,0.1); // no ground reflection
     ground.material = materialPlane;
 
     var box = BABYLON.Mesh.CreateBox("box", 3, scene);
@@ -365,7 +374,10 @@ var createScene = function() {
     scene.enablePhysics();
     box.physicsImpostor = new BABYLON.PhysicsImpostor(box, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0.9 }, scene);
     ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
-    
+
+    shadowGenerator.getShadowMap().renderList.push(box);
+    //shadowGenerator.useVarianceShadowMap = true;
+
     console.log("init movement")
     initMovement();
 
@@ -388,6 +400,8 @@ var createScene = function() {
                 // if (index[1] == 0) {
                 //     mesh.rotation.y = Math.PI;
                 // }
+                shadowGenerator.getShadowMap().renderList.push(mesh);
+	            //shadowGenerator.useVarianceShadowMap = true;
             };   
         }
     }
@@ -405,6 +419,8 @@ var createScene = function() {
                 // if (index[1] == 1) {
                 //     mesh.rotation.y = -Math.PI/2;
                 // }
+                shadowGenerator.getShadowMap().renderList.push(mesh);
+	            //shadowGenerator.useVarianceShadowMap = true;
             };   
         }
     }
@@ -437,6 +453,8 @@ var createScene = function() {
                 mesh.position.y += -7;
                 mesh.material = materialWall;
                 mesh.parent = towers[index];
+                shadowGenerator.getShadowMap().renderList.push(mesh);
+	            //shadowGenerator.useVarianceShadowMap = true;
             });
             towers[index].isVisible = false;
         };
@@ -451,6 +469,8 @@ var createScene = function() {
             //m.rotation.y = -Math.PI/2;
             m.position.y -= 1;
             m.parent = actor.model;
+            shadowGenerator.getShadowMap().renderList.push(m);
+	        //shadowGenerator.useVarianceShadowMap = true;
         });
         //actor.model.skeleton = t.loadedSkeletons[0];
         
@@ -460,6 +480,7 @@ var createScene = function() {
         actor.model.setEnabled(true);
         asset = {meshes: actor.model};
 
+        
         
         actor.model.physicsImpostor = new BABYLON.PhysicsImpostor(actor.model, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 100, restitution: 0 }, scene);
         actor.model.isVisible = false;
@@ -501,6 +522,8 @@ for (var i = 0; i < enemyCount; i++) {
         t.loadedMeshes.forEach(function(m) {
             m.position.y -= 1.6;
             m.parent = enemy;
+            shadowGenerator.getShadowMap().renderList.push(m);
+	        //shadowGenerator.useVarianceShadowMap = true;
         });
 
         enemy.position.z = Math.random()*100;
