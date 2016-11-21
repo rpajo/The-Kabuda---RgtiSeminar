@@ -694,7 +694,7 @@ var run = function(scene){
 
 
 var setup = function() {
-    document.getElementById("hud").style.isVisible = "visible";
+    document.getElementById("hud").style.visibility = "visible";
     document.getElementById("title").style.display = "none";
     createScene();
 }
