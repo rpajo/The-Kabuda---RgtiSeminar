@@ -664,6 +664,9 @@ var run = function(scene){
         if (actor.health > 0) {
             move(); 
         }
+        else{
+            window.alert("You suck. You should kill yourself. Oh, you are already dead xD");
+        }
 
         var nearX, nearZ;
 
