@@ -258,21 +258,21 @@ var onPointerDown = function (evt) {
     if (pickInfo.hit) {
         currentMesh = pickInfo.pickedMesh;
     }
-
+    
     if (currentMesh != undefined) {
         var xNear = true;
         var zNear = true;
 
-        if (currentMesh.position.x < actor.model.position.x - 5) {
+        if (currentMesh.position.x < actor.model.position.x - 4) {
             xNear = false;
         } 
-        else if(currentMesh.position.x > actor.model.position.x + 5) {
+        else if(currentMesh.position.x > actor.model.position.x + 4) {
             xNear = false;
         }
-        if(currentMesh.position.z < actor.model.position.z - 5) {
+        if(currentMesh.position.z < actor.model.position.z - 4) {
             zNear = false;
         }
-        else if(currentMesh.position.z > actor.model.position.z + 5) {
+        else if(currentMesh.position.z > actor.model.position.z + 4) {
             zNear = false;
         }
 
@@ -313,6 +313,13 @@ var createScene = function() {
     // create a basic BJS Scene object
     scene = new BABYLON.Scene(engine);
 
+    BABYLON.SceneOptimizer.OptimizeAsync(scene, BABYLON.SceneOptimizerOptions.ModerateDegradationAllowed(),
+    function() {
+        console.log("Scene optimizer successfuly initialized");
+    }, function() {
+        console.log("Scene optimizer not initialized");
+    })
+
     camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 30, 50), scene);
     
     // Debug Free camera
@@ -322,6 +329,23 @@ var createScene = function() {
     debugCamera.attachControl(canvas, false);
     */
 
+    // Minimap
+    /*
+	var mm = new BABYLON.FreeCamera("minimap", new BABYLON.Vector3(0,0,0), scene);  
+	mm.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
+	mm.setTarget(new BABYLON.Vector3(0, 0, 0));
+	mm.orthoLeft = -120/2;
+    mm.orthoRight = 120/2;
+    mm.orthoTop =  120/2;
+    mm.orthoBottom = -120/2;
+	mm.rotation.x = Math.PI/2;
+    mm.rotation.y = Math.PI;
+    mm.viewport = new BABYLON.Viewport(0.8, 0.1, 0.20, 0.20);
+
+    scene.activeCameras.push(camera);
+	scene.activeCameras.push(mm);
+    scene.cameraToUseForPointers = camera;
+    */
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     var hemiLight = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,-5,0), scene);
 
