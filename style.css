@@ -5,11 +5,25 @@ body {
     height  : 100%;
     margin  : 0;
     padding : 0;
+    background: black;
 }
 
 canvas { 
     width   : 100%;
     height  : 100%;
+}
+
+#title {
+    height: 100%;
+    width: 100%;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    color: red;
+    text-align: center;
+}
+
+
+#hud {
+    visibility: hidden;
 }
 
 #healthDisplay {

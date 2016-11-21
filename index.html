@@ -6,11 +6,24 @@
 		<link rel="stylesheet" href="style.css">
 	</head>
 	<body>
-		<canvas id="canvas"></canvas>
-		<div id="healthDisplay"> HEALTH: 100 </div>
-		<div>
-			<progress id="healthBar" value="100" max="100"></progress>
+		
+		<div id="title">
+			<h1>The Kabunda</h1>
+			<p>In the shoes of our hero Kabunda we fund ourselves trapped inside a castle courtyard with no exit in sight.
+				<br>Hamelmet's horrific creations are roaming free inside these walls which a eager to feast on our hero. 
+				<br>Help him to slay these monsters and survive the seamlessy endless hoardes of enemies. 
+			</p>
+			<button onclick="setup()">
+				Play
+			</button>
 		</div>
+		<div id="hud">	
+			<div id="healthDisplay"> HEALTH: 100 </div>
+			<div>
+				<progress id="healthBar" value="100" max="100"></progress>
+			</div>
+		</div>
+		<canvas id="canvas"></canvas>
 		<script src="js/babylon.2.4.js"></script>
 		<script src="js/cannon.js"></script>
 		<script src="js/hand-1.3.7.js"></script>  

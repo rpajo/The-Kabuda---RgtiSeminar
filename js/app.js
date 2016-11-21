@@ -313,12 +313,12 @@ var createScene = function() {
     // create a basic BJS Scene object
     scene = new BABYLON.Scene(engine);
 
-    BABYLON.SceneOptimizer.OptimizeAsync(scene, BABYLON.SceneOptimizerOptions.ModerateDegradationAllowed(),
+    /*BABYLON.SceneOptimizer.OptimizeAsync(scene, BABYLON.SceneOptimizerOptions.ModerateDegradationAllowed(),
     function() {
         console.log("Scene optimizer successfuly initialized");
     }, function() {
         console.log("Scene optimizer not initialized");
-    })
+    })*/
 
     camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 30, 50), scene);
     
@@ -577,9 +577,8 @@ for (var i = 0; i < enemyCount; i++) {
         run(scene);
     };
 
-    loader.load();
     
-
+    
     scene.onPointerDown = function (evt, pickResult) {
         // if the click hits the ground object, we change the impact position
         if (pickResult.hit) {
@@ -596,6 +595,7 @@ for (var i = 0; i < enemyCount; i++) {
         
     };
 
+    loader.load();
 /*   
     var a = BABYLON.Mesh.CreateBox("box", 4, scene);
     var b = BABYLON.Mesh.CreateBox("box", 4, scene);
@@ -616,8 +616,7 @@ for (var i = 0; i < enemyCount; i++) {
     subCSG.toMesh("csg", new BABYLON.StandardMaterial("mat", scene), scene);
     subCSG.physicsImpostor =  new BABYLON.PhysicsImpostor(subCSG, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 5, restitution: 0.1 }, scene);
 */
-    // return the created scene
-    return scene;
+
 }
 
 var run = function(scene){
@@ -692,7 +691,14 @@ var run = function(scene){
 
 };
 
-var scene = createScene();
+
+
+var setup = function() {
+    document.getElementById("hud").style.isVisible = "visible";
+    document.getElementById("title").style.display = "none";
+    createScene();
+}
+
 
 canvas.addEventListener("pointerdown", onPointerDown, false);
 
