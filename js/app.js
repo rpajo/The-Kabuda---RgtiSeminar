@@ -486,6 +486,12 @@ var createScene = function() {
         }
     }
 
+    var house = BABYLON.Mesh.CreateCylinder("house", 15, 15, 15, 6, 1, scene, false);
+    house.position = new BABYLON.Vector3(0, 8 ,0);
+
+    var tree = BABYLON.Mesh.CreateCylinder("tree", 15, 15, 15, 6, 1, scene, false);
+    tree.position = new BABYLON.Vector3(20, 8 ,20);
+
     var towerMesh1 = BABYLON.Mesh.CreateCylinder("tower1", 15, 15, 15, 6, 1, scene, false);
     towerMesh1.position = new BABYLON.Vector3(-38, 8 ,45);
     towerMesh1.physicsImpostor = new BABYLON.PhysicsImpostor(towerMesh1, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 5000, restitution: 0 }, scene);
@@ -521,7 +527,36 @@ var createScene = function() {
         };
     }
 
+    var houseLoad = loader.addMeshTask("house", "", "./assets/house/", "medieval-house-2.obj");
+        houseLoad.onSuccess = function(t) {
+            t.loadedMeshes.forEach(function(mesh) {
+                mesh.scaling = new BABYLON.Vector3(1.50, 1.50, 1.50);
+                mesh.position.y += -7;
+                mesh.material = materialWall;
+                mesh.parent = house;
+                shadowGenerator.getShadowMap().renderList.push(mesh);
+	            //shadowGenerator.useVarianceShadowMap = true;
+            });
+            house.isVisible = false;
+        };
 
+
+    var treeLoad = loader.addMeshTask("tree", "", "./assets/tree/", "tree-05.obj");
+        treeLoad.onSuccess = function(t) {
+            t.loadedMeshes.forEach(function(mesh) {
+                mesh.scaling = new BABYLON.Vector3(0.07, 0.07, 0.07);
+                mesh.position.y += -7;
+                mesh.material = materialWall;
+                mesh.parent = tree;
+                shadowGenerator.getShadowMap().renderList.push(mesh);
+	            //shadowGenerator.useVarianceShadowMap = true;
+            });
+            tree.isVisible = false;
+        };
+    
+    
+    
+    
     var modelLoad = loader.addMeshTask("actor", "", "./assets/Varian/", "psc-warrior.babylon");
     modelLoad.onSuccess = function(t) {
         //actor.model = new BABYLON.Mesh("characterModel", _this.scene);
