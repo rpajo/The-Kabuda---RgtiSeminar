@@ -99,27 +99,6 @@ var initParticles = function() {
     particleAoe.emitRate = 500;
 }
 
-var myInterval = 0;
-
-// STARTS and Resets the loop if any
-function startLoop() {
-    if(myInterval > 0) clearInterval(myInterval);
-    myInterval = setInterval( "addMana()", 2500 );  // run
-}
-
-function addMana()
-{
-    
-    if(actor.mana<100){
-        console.log("manaLoop");
-        actor.mana=actor.mana+5;
-        if(actor.mana>100){
-            actor.mana=100;
-        }
-        manaBar.value = Math.floor(actor.mana);
-        document.getElementById("manaDisplay").innerHTML = "MANA: " + Math.round(actor.mana*100)/100;
-    }
-}
 
 //  Register key presses
 var initMovement = function() {
@@ -452,7 +431,6 @@ var createScene = function() {
 
     console.log("init movement")
     initMovement();
-    startLoop();
 
     // The function ImportMesh will import our custom model in the scene given in parameter
     var _this  = this;
@@ -719,6 +697,15 @@ var run = function(scene){
                 alert("Okej pa ne.");
             }
         }
+
+        if (actor.mana < 100) {
+            actor.mana = actor.mana + 0.05;
+        }
+        
+
+        manaBar.value = Math.floor(actor.mana);
+        document.getElementById("manaDisplay").innerHTML = "MANA: " + Math.round(actor.mana);
+
 
         var nearX, nearZ;
 
