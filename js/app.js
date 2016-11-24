@@ -397,6 +397,10 @@ var createScene = function() {
     // create a built-in "ground" shape; its constructor takes the same 5 params as the sphere's one
     ground = BABYLON.Mesh.CreateGround('ground', 300, 300, 2, scene);
     ground.receiveShadows = true;
+
+    ground2 = BABYLON.Mesh.CreateGround('ground2', 50, 50, 2, scene);
+    ground2.position.y=ground2.position.y+0.001;
+    ground2.receiveShadows = true;
     
     swordEffect = new BABYLON.Sound("sword", "assets/sounds/sword.mp3", scene);
 
@@ -422,6 +426,14 @@ var createScene = function() {
     materialPlane.backFaceCulling = false;//Always show the front and the back of an element
     materialPlane.specularColor = new BABYLON.Color3(0.1,0.1,0.1); // no ground reflection
     ground.material = materialPlane;
+
+    var materialPlane2 = new BABYLON.StandardMaterial("texturePlane2", scene);
+    materialPlane2.diffuseTexture = new BABYLON.Texture("textures/ground3.jpg", scene);
+    materialPlane2.diffuseTexture.uScale = 5.0;//Repeat 5 times on the Vertical Axes
+    materialPlane2.diffuseTexture.vScale = 5.0;//Repeat 5 times on the Horizontal Axes
+    materialPlane2.backFaceCulling = false;//Always show the front and the back of an element
+    materialPlane2.specularColor = new BABYLON.Color3(0.1,0.1,0.1); // no ground reflection
+    ground2.material = materialPlane2;
 
     var box = BABYLON.Mesh.CreateBox("box", 3, scene);
     var boxMat = new BABYLON.StandardMaterial("boxmMterial", scene);
@@ -490,7 +502,7 @@ var createScene = function() {
     house.position = new BABYLON.Vector3(0, 8 ,0);
 
     var tree = BABYLON.Mesh.CreateCylinder("tree", 15, 15, 15, 6, 1, scene, false);
-    tree.position = new BABYLON.Vector3(20, 8 ,20);
+    tree.position = new BABYLON.Vector3(20, 7 ,20);
 
     var towerMesh1 = BABYLON.Mesh.CreateCylinder("tower1", 15, 15, 15, 6, 1, scene, false);
     towerMesh1.position = new BABYLON.Vector3(-38, 8 ,45);
