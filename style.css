@@ -81,3 +81,11 @@ progress2 {
 }
 
 progress2::-moz-progress-bar { background: blue; }
+
+#scoreDisplay {
+    position:absolute;
+    top:20px;
+    left : 800px;
+    color:white;
+    font-size: 4em;
+}

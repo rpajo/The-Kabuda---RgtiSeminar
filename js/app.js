@@ -16,7 +16,8 @@ var actor = {
         heal : 0, // healing amout
         aoe : 0, // damage explosive skill
         model: null,
-        mana: 100
+        mana: 100,
+        score: 0
         };
 
 var charModel, asset, camera, scene, ground, currentMesh;
@@ -256,7 +257,9 @@ var move = function() {
 
 
 var killEnemy = function(enemy) {
-    if(enemy.health==0){        
+    if(enemy.health==0){
+        actor.score=actor.score+100;
+        document.getElementById("scoreDisplay").innerHTML = "SCORE: " + Math.round(actor.score*100)/100;        
         enemy.dispose();
         enemies[enemy.index] = null;  
         dyingEffect.play();     
@@ -733,6 +736,8 @@ var run = function(scene){
 
                 if(nearX && nearZ) {
                     actor.health += -0.1;
+                    actor.score = actor.score - 1;
+                    document.getElementById("scoreDisplay").innerHTML = "SCORE: " + Math.round(actor.score*100)/100;
                     healthBar.value = Math.floor(actor.health);
                     document.getElementById("healthDisplay").innerHTML = "HEALTH: " + Math.round(actor.health*100)/100;
 
