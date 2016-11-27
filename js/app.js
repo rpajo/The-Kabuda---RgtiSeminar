@@ -102,7 +102,6 @@ var initParticles = function() {
     particleAoe.emitRate = 500;
 }
 
-
 //  Register key presses
 var initMovement = function() {
     //console.log("MOVING");
