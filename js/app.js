@@ -324,47 +324,39 @@ var killEnemy = function(enemy) {
         dyingEffect.play();
     }
 }
-// Pointer Down event handler
-var onPointerDown = function (evt) {
-    if (evt.button !== 0) {
-        return;
+
+var onMeshClick = function(mesh) {
+    console.log("ACTION");
+    var xNear = true;
+    var zNear = true;
+
+    if (mesh.position.x < actor.model.position.x - 4) {
+        xNear = false;
+    } 
+    else if(mesh.position.x > actor.model.position.x + 4) {
+        xNear = false;
     }
-    
-    // check if we are under a mesh
-    var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh !== ground; });
-    if (pickInfo.hit) {
-        currentMesh = pickInfo.pickedMesh;
+    if(mesh.position.z < actor.model.position.z - 4) {
+        zNear = false;
     }
-    
-    if (currentMesh != undefined) {
-        var xNear = true;
-        var zNear = true;
-
-        if (currentMesh.position.x < actor.model.position.x - 4) {
-            xNear = false;
-        } 
-        else if(currentMesh.position.x > actor.model.position.x + 4) {
-            xNear = false;
-        }
-        if(currentMesh.position.z < actor.model.position.z - 4) {
-            zNear = false;
-        }
-        else if(currentMesh.position.z > actor.model.position.z + 4) {
-            zNear = false;
-        }
-
-        if(xNear && zNear) {
-            swordEffect.play();
-            currentMesh.health=currentMesh.health-1;
-        }
-        else missEffect.play();
-
-        killEnemy(currentMesh);
+    else if(mesh.position.z > actor.model.position.z + 4) {
+        zNear = false;
     }
-    
 
-    currentMesh = undefined;
+    console.log(xNear, zNear);
+    if (xNear && zNear) {
+        swordEffect.play();
+        mesh.health=mesh.health-1;
+    }
+    else {
+        missEffect.play();
+    }
+
+    killEnemy(mesh);
+
 }
+
+
 
 // mouse over mesh event initializer
 var makeOverOut = function (mesh) {
@@ -379,6 +371,10 @@ var makeOverOut = function (mesh) {
     mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(ev) {
         mesh.visibility = 0;
         child.visibility = 0;
+    }));
+    
+    mesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnLeftPickTrigger, function(ev) {
+        onMeshClick(mesh);
     }));
 
     // mesh.actionManager.registerAction(new BABYLON.InterpolateValueAction(BABYLON.ActionManager.OnPointerOutTrigger, mesh, "scaling", new BABYLON.Vector3(1, 1, 1), 150));
@@ -407,7 +403,7 @@ var createScene = function() {
     */
 
     // Minimap
-    /*
+    
 	var mm = new BABYLON.FreeCamera("minimap", new BABYLON.Vector3(0,0,0), scene);  
 	mm.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
 	mm.setTarget(new BABYLON.Vector3(0, 0, 0));
@@ -422,7 +418,7 @@ var createScene = function() {
     scene.activeCameras.push(camera);
 	scene.activeCameras.push(mm);
     scene.cameraToUseForPointers = camera;
-    */
+    
     // create a basic light, aiming 0,1,0 - meaning, to the sky
     var hemiLight = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,-5,0), scene);
 
@@ -439,8 +435,9 @@ var createScene = function() {
     ground = BABYLON.Mesh.CreateGround('ground', 300, 300, 2, scene);
     ground.receiveShadows = true;
 
-    ground2 = BABYLON.Mesh.CreateGround('ground2', 50, 50, 2, scene);
-    ground2.position.y=ground2.position.y+0.001;
+    ground2 = BABYLON.Mesh.CreateGround('ground2', 25, 25, 2, scene);
+    ground2.position.y += 0.001;
+    ground2.position.z += -20;    
     ground2.receiveShadows = true;
     
     swordEffect = new BABYLON.Sound("sword", "assets/sounds/sword.mp3", scene);
@@ -539,7 +536,8 @@ var createScene = function() {
     }
 
     var house = BABYLON.Mesh.CreateCylinder("house", 15, 15, 15, 6, 1, scene, false);
-    house.position = new BABYLON.Vector3(0, 8 ,-10);
+    house.position = new BABYLON.Vector3(0, 10 ,-20);
+    house.physicsImpostor = new BABYLON.PhysicsImpostor(house, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 5000, restitution: 0 }, scene);
 
     var tree = BABYLON.Mesh.CreateCylinder("tree", 15, 15, 15, 6, 1, scene, false);
     tree.position = new BABYLON.Vector3(20, 7 ,20);
