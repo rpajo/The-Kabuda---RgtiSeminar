@@ -21,7 +21,7 @@ var actor = {
         };
 
 var asset, camera, scene, ground, currentMesh, loader, enemyMat, shadowGenerator;
-var walkingEffect, swordEffect, dyingEffect, missEffect; //sound effects
+var walkingEffect, swordEffect, dyingEffect, missEffect, aoeEffect, healingEffect; //sound effects
 var particleHeal, particleAoe; // particle effects
 var enemies = [];
 var enemy;
@@ -189,6 +189,7 @@ var initMovement = function() {
                 manaBar.value = Math.floor(actor.mana);
                 document.getElementById("manaDisplay").innerHTML = "MANA: " + Math.round(actor.mana*100)/100;
                 particleHeal.start();
+                healingEffect.play();
             }
             
         }
@@ -200,6 +201,7 @@ var initMovement = function() {
                 manaBar.value = Math.floor(actor.mana);
                 document.getElementById("manaDisplay").innerHTML = "MANA: " + Math.round(actor.mana*100)/100;
                 particleAoe.start();
+                aoeEffect.play()
             }
         }
 
@@ -450,6 +452,11 @@ var createScene = function() {
     dyingEffect = new BABYLON.Sound("dying", "assets/sounds/dying.mp3", scene);
 
     missEffect = new BABYLON.Sound("miss", "assets/sounds/miss.wav", scene);
+
+    healingEffect = new BABYLON.Sound("miss", "assets/sounds/healing.mp3", scene);
+
+    aoeEffect = new BABYLON.Sound("miss", "assets/sounds/aoe.mp3", scene);
+    
 
     /*walkingEffect = new BABYLON.Sound("walking", "assets/sounds/walking2.wav", scene, function() {
         console.log("walking effect loaded");
