@@ -270,8 +270,8 @@ var spawnMonsters = function(){
             enemy.position.y++;
             enemy.actionManager = new BABYLON.ActionManager(scene);
             enemy.visibility = 0;
-            enemy.position.z = Math.random()*50;
-            enemy.position.x = Math.random()*50;
+            enemy.position.z = Math.random()*80-40;
+            enemy.position.x = Math.random()*80-40;
             enemy.position.y = 2;
 
             var enemyTorus = BABYLON.Mesh.CreateTorus("enemyTorus" + i, 1.3, 0.2, 16, scene, false);
@@ -462,11 +462,11 @@ var createScene = function() {
         console.log("walking effect loaded");
     }, { loop: true, autoplay: true });*/
 
-    /*var music = new BABYLON.Sound("music", "assets/sounds/diablo1.mp3", scene,
+    var music = new BABYLON.Sound("music", "assets/sounds/diablo1.mp3", scene,
         function () {
         // Sound has been downloaded & decoded
         music.play();
-        }, { loop: true, autoplay: true });*/
+        }, { loop: true, autoplay: true });
 
     //Creation of a repeated textured material
     var materialPlane = new BABYLON.StandardMaterial("texturePlane", scene);
@@ -886,6 +886,21 @@ var run = function(scene){
                         enemy.health--;
                         killEnemy(enemy);
                     }
+                }
+                if (enemy.position.x>40){
+                    enemy.position.x=40;
+                }
+                if (enemy.position.z>40){
+                    enemy.position.z=40;
+                }
+                if (enemy.position.x<-40){
+                    enemy.position.x=-40;
+                }
+                if (enemy.position.z<-40){
+                    enemy.position.z=-40;
+                }
+                if(enemy.position.y!=2){
+                    enemy.position.y=2;
                 }
             }
         });
