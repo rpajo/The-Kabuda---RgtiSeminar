@@ -563,10 +563,6 @@ var createScene = function() {
     materialWall.backFaceCulling = true;//Always show the front and the back of an element
     materialWall.specularColor = new BABYLON.Color3(0,0,0); // no ground reflection
 
-<<<<<<< HEAD
-=======
-
->>>>>>> some cleaning
     for (var i = 0; i < 4; i++) {
         var towerLoad = loader.addMeshTask("towerMesh"+i, "", "./assets/wall/", "Only Tower.obj");
         towerLoad.onSuccess = function(t) {
