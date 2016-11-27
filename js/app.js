@@ -603,12 +603,80 @@ var createScene = function() {
         treeLoad.onSuccess = function(t) {
             t.loadedMeshes.forEach(function(mesh) {
 
-                mesh.scaling = new BABYLON.Vector3(0.02, 0.02, 0.02);
+                mesh.scaling = new BABYLON.Vector3(0.015, 0.015, 0.015);
                 mesh.position = new BABYLON.Vector3(20, 0 ,20);
 
-                mesh.scaling = new BABYLON.Vector3(0.01, 0.01, 0.01);
-                mesh.position.y += -7;
-                mesh.parent = deadTree;
+                shadowGenerator.getShadowMap().renderList.push(mesh);
+	            //shadowGenerator.useVarianceShadowMap = true;
+            });
+        };
+
+        var treeLoad = loader.addMeshTask("deadTree", "", "./assets/deadTree/", "DeadTree11.obj");
+        treeLoad.onSuccess = function(t) {
+            t.loadedMeshes.forEach(function(mesh) {
+
+                mesh.scaling = new BABYLON.Vector3(0.015, 0.015, 0.015);
+                mesh.position = new BABYLON.Vector3(30, 0 ,20);
+
+                shadowGenerator.getShadowMap().renderList.push(mesh);
+	            //shadowGenerator.useVarianceShadowMap = true;
+            });
+        };
+
+        var treeLoad = loader.addMeshTask("deadTree", "", "./assets/deadTree/", "DeadTree21.obj");
+        treeLoad.onSuccess = function(t) {
+            t.loadedMeshes.forEach(function(mesh) {
+
+                mesh.scaling = new BABYLON.Vector3(0.015, 0.015, 0.015);
+                mesh.position = new BABYLON.Vector3(25, 0 ,35);
+
+                shadowGenerator.getShadowMap().renderList.push(mesh);
+	            //shadowGenerator.useVarianceShadowMap = true;
+            });
+        };
+
+        var treeLoad = loader.addMeshTask("deadTree", "", "./assets/deadTree/", "DeadTree21.obj");
+        treeLoad.onSuccess = function(t) {
+            t.loadedMeshes.forEach(function(mesh) {
+
+                mesh.scaling = new BABYLON.Vector3(0.015, 0.015, 0.015);
+                mesh.position = new BABYLON.Vector3(-25, 0 ,-35);
+
+                shadowGenerator.getShadowMap().renderList.push(mesh);
+	            //shadowGenerator.useVarianceShadowMap = true;
+            });
+        };
+
+        var treeLoad = loader.addMeshTask("deadTree", "", "./assets/deadTree/", "DeadTree11.obj");
+        treeLoad.onSuccess = function(t) {
+            t.loadedMeshes.forEach(function(mesh) {
+
+                mesh.scaling = new BABYLON.Vector3(0.015, 0.015, 0.015);
+                mesh.position = new BABYLON.Vector3(-23, 0 ,-25);
+
+                shadowGenerator.getShadowMap().renderList.push(mesh);
+	            //shadowGenerator.useVarianceShadowMap = true;
+            });
+        };
+
+        var treeLoad = loader.addMeshTask("deadTree", "", "./assets/deadTree/", "DeadTree21.obj");
+        treeLoad.onSuccess = function(t) {
+            t.loadedMeshes.forEach(function(mesh) {
+
+                mesh.scaling = new BABYLON.Vector3(0.015, 0.015, 0.015);
+                mesh.position = new BABYLON.Vector3(-30, 0 ,-25);
+
+                shadowGenerator.getShadowMap().renderList.push(mesh);
+	            //shadowGenerator.useVarianceShadowMap = true;
+            });
+        };
+
+        var treeLoad = loader.addMeshTask("deadTree", "", "./assets/deadTree/", "DeadTree1.obj");
+        treeLoad.onSuccess = function(t) {
+            t.loadedMeshes.forEach(function(mesh) {
+
+                mesh.scaling = new BABYLON.Vector3(0.015, 0.015, 0.015);
+                mesh.position = new BABYLON.Vector3(-28, 0 ,-15);
 
                 shadowGenerator.getShadowMap().renderList.push(mesh);
 	            //shadowGenerator.useVarianceShadowMap = true;
