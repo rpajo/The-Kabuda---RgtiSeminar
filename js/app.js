@@ -277,7 +277,12 @@ var spawnMonsters = function(){
             enemyTorus.parent = enemy;
             enemyTorus.material = enemyMat;
             enemyTorus.visibility = 0;
-            //console.log(enemy.getChildren());
+
+            var mapMesh = BABYLON.Mesh.CreateCylinder("mapMesh" + i, 1, 4, 4, 10, 1, scene, false);
+            mapMesh.position.y = 50;
+            mapMesh.material = enemyMat;
+            mapMesh.parent = enemy;
+
             makeOverOut(enemy);
 
 
@@ -628,7 +633,12 @@ var createScene = function() {
         actor.model.setEnabled(true);
         asset = {meshes: actor.model};
 
-        
+        var mapMesh = BABYLON.Mesh.CreateCylinder("mapMeshHero", 1, 2, 2, 10, 1, scene, false);
+        mapMesh.position.y = 50;
+        var greenMat = new BABYLON.StandardMaterial("actorMaterial", scene);
+        greenMat.diffuseColor = new BABYLON.Color3(0, 1, 0); //Red
+        mapMesh.material = greenMat;
+        mapMesh.parent = actor.model;
         
         actor.model.physicsImpostor = new BABYLON.PhysicsImpostor(actor.model, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 100, restitution: 0 }, scene);
         actor.model.isVisible = false;
@@ -665,6 +675,11 @@ var createScene = function() {
             enemyTorus.parent = enemy;
             enemyTorus.material = enemyMat;
             enemyTorus.visibility = 0;
+
+            var mapMesh = BABYLON.Mesh.CreateCylinder("mapMesh" + i, 1, 4, 4, 10, 1, scene, false);
+            mapMesh.position.y = 50;
+            mapMesh.material = enemyMat;
+            mapMesh.parent = enemy;
             //console.log(enemy.getChildren());
             makeOverOut(enemy);
 
