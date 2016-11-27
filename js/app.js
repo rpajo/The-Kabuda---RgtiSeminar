@@ -20,15 +20,15 @@ var actor = {
         score: 0
         };
 
-var asset, camera, scene, ground, currentMesh;
+var asset, camera, scene, ground, currentMesh, loader, enemyMat, shadowGenerator;
 var walkingEffect, swordEffect, dyingEffect, missEffect; //sound effects
 var particleHeal, particleAoe; // particle effects
 var enemies = [];
 var enemy;
-var needToSpawn = 1;
-var killed = 0;
+var enemyHealth = 3;
+var needToSpawn = false, barrier = false;
 
-var enemyCount= 10 // number of monsters to be generated;
+var enemyCount= 4 // number of monsters to be generated;
 
 var healthBar = document.getElementById("healthBar");
 healthBar.value = 100;
@@ -257,17 +257,21 @@ var move = function() {
     }
 };
 
-var spawnMonster = function(){
-    //window.alert("not");
-    var loader =  new BABYLON.AssetsManager(scene);
+var spawnMonsters = function(){
+    barrier = true;
+    loader =  new BABYLON.AssetsManager(scene);
+    enemies = [];
 
-    for (var i = 0; i < 10; i++) {
-        
+    for (var i = 0; i < enemyCount; i++) {
         var enemyLoad = loader.addMeshTask("enemy"+i, "", "./assets/gow/", "gears-of-war-3-lambent-female.babylon");
         enemyLoad.onSuccess = function(t) {
             var enemy = BABYLON.Mesh.CreateCylinder("enemy" + i, 3.8, 2, 2, 6, 1, scene, false);
+            enemy.position.y++;
             enemy.actionManager = new BABYLON.ActionManager(scene);
             enemy.visibility = 0;
+            enemy.position.z = Math.random()*50;
+            enemy.position.x = Math.random()*50;
+            enemy.position.y = 2;
 
             var enemyTorus = BABYLON.Mesh.CreateTorus("enemyTorus" + i, 1.3, 0.2, 16, scene, false);
             enemyTorus.position.y -= 1.7;
@@ -278,30 +282,25 @@ var spawnMonster = function(){
             makeOverOut(enemy);
 
 
-
             t.loadedMeshes.forEach(function(m) {
                 m.position.y -= 1.6;
                 m.parent = enemy;
                 shadowGenerator.getShadowMap().renderList.push(m);
                 //shadowGenerator.useVarianceShadowMap = true;
             });
-
-            enemy.position.z = Math.random()*50;
-            enemy.position.x = Math.random()*50;
-            enemy.position.y = 0.5;
+            
 
             asset = {meshes: enemy};
 
             
             enemy.physicsImpostor = new BABYLON.PhysicsImpostor(enemy, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 5, restitution: 0.1 }, scene);
             enemy.isVisible = true;
-
+            
             
             enemy.rotationQuaternion = new BABYLON.Quaternion(0, 0, 0, 1);
-            enemy.health = 3;
+            enemy.health = enemyHealth;
 
             enemies.push(enemy);
-
         };
     };
 
@@ -310,9 +309,9 @@ var spawnMonster = function(){
         for (var i = 0; i < enemies.length; i++) {
             enemies[i].index = i;
         }
-        run(scene);
+        
+        barrier = false;
     };
-
     loader.load();
 };
 
@@ -320,15 +319,10 @@ var spawnMonster = function(){
 var killEnemy = function(enemy) {
     if(enemy.health==0){
         actor.score=actor.score+100;
-        document.getElementById("scoreDisplay").innerHTML = "SCORE: " + Math.round(actor.score*100)/100;        
-        enemy.dispose();
+        document.getElementById("scoreDisplay").innerHTML = "SCORE: " + Math.round(actor.score*100)/100; 
+        enemy.dispose();           
         enemies[enemy.index] = null;  
         dyingEffect.play();
-        /*killed++;
-        if(killed==(enemyCount-2)){
-            killed=0;
-            needToSpawn=1;
-        }*/
     }
 }
 // Pointer Down event handler
@@ -438,7 +432,7 @@ var createScene = function() {
 	light.intensity = 0.7;
 
     // shadow generator
-    var shadowGenerator = new BABYLON.ShadowGenerator(2048, light);
+    shadowGenerator = new BABYLON.ShadowGenerator(2048, light);
     //shadowGenerator.usePoissonSampling = true;
     shadowGenerator.useBlurVarianceShadowMap = true;
 
@@ -505,7 +499,7 @@ var createScene = function() {
     var _this  = this;
     
         // The loader
-    var loader =  new BABYLON.AssetsManager(scene);
+    loader =  new BABYLON.AssetsManager(scene);
 
     // horizontal walls
     for (var i = 0; i < 5; i++) {
@@ -546,7 +540,7 @@ var createScene = function() {
     }
 
     var house = BABYLON.Mesh.CreateCylinder("house", 15, 15, 15, 6, 1, scene, false);
-    house.position = new BABYLON.Vector3(0, 8 ,0);
+    house.position = new BABYLON.Vector3(0, 8 ,-10);
 
     var tree = BABYLON.Mesh.CreateCylinder("tree", 15, 15, 15, 6, 1, scene, false);
     tree.position = new BABYLON.Vector3(20, 7 ,20);
@@ -620,6 +614,8 @@ var createScene = function() {
     modelLoad.onSuccess = function(t) {
         //actor.model = new BABYLON.Mesh("characterModel", _this.scene);
         actor.model = BABYLON.Mesh.CreateCylinder("characterBox", 2, 2, 2, 6, 1, scene, false);
+        actor.model.position.z = 10;
+        actor.model.position.y = 2;
         t.loadedMeshes.forEach(function(m) {
             //m.rotation.y = -Math.PI/2;
             m.position.y -= 1;
@@ -640,8 +636,7 @@ var createScene = function() {
         actor.model.physicsImpostor = new BABYLON.PhysicsImpostor(actor.model, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 100, restitution: 0 }, scene);
         actor.model.isVisible = false;
 
-        actor.model.position.z = 10;
-        actor.model.position.y = 0.5;
+        
         camera.target = actor.model;
         camera.radius = 15;
         camera.heightOffset = 15;
@@ -654,17 +649,19 @@ var createScene = function() {
         //walkingEffect.attachToMesh(actor.model); 
     };
 
-var enemyMat = new BABYLON.StandardMaterial("enemyMaterial", scene);
-enemyMat.diffuseColor = new BABYLON.Color3(1, 0, 0); //Red
+    enemyMat = new BABYLON.StandardMaterial("enemyMaterial", scene);
+    enemyMat.diffuseColor = new BABYLON.Color3(1, 0, 0); //Red
 
-/*if(needToSpawn==1){
-    needToSpawn=0;
+
     for (var i = 0; i < enemyCount; i++) {
         var enemyLoad = loader.addMeshTask("enemy"+i, "", "./assets/gow/", "gears-of-war-3-lambent-female.babylon");
         enemyLoad.onSuccess = function(t) {
             var enemy = BABYLON.Mesh.CreateCylinder("enemy" + i, 3.8, 2, 2, 6, 1, scene, false);
             enemy.actionManager = new BABYLON.ActionManager(scene);
             enemy.visibility = 0;
+            enemy.position.z = Math.random()*50;
+            enemy.position.x = Math.random()*50;
+            enemy.position.y = 2;
 
             var enemyTorus = BABYLON.Mesh.CreateTorus("enemyTorus" + i, 1.3, 0.2, 16, scene, false);
             enemyTorus.position.y -= 1.7;
@@ -682,22 +679,13 @@ enemyMat.diffuseColor = new BABYLON.Color3(1, 0, 0); //Red
                 shadowGenerator.getShadowMap().renderList.push(m);
                 //shadowGenerator.useVarianceShadowMap = true;
             });
-
-            enemy.position.z = Math.random()*50;
-            enemy.position.x = Math.random()*50;
-            enemy.position.y = 0.5;
+            
 
             asset = {meshes: enemy};
 
-<<<<<<< d8ce158d4d52d45355b6ea72ac105e27cc9060d9
-            
-            enemy.physicsImpostor = new BABYLON.PhysicsImpostor(enemy, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 5, restitution: 0.1 }, scene);
+
+            enemy.physicsImpostor = new BABYLON.PhysicsImpostor(enemy, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 5, restitution: 0.1 }, scene);
             enemy.isVisible = true;
-=======
-        
-        enemy.physicsImpostor = new BABYLON.PhysicsImpostor(enemy, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 5, restitution: 0.1 }, scene);
-        enemy.isVisible = true;
->>>>>>> Small fixes
 
             
             enemy.rotationQuaternion = new BABYLON.Quaternion(0, 0, 0, 1);
@@ -707,8 +695,6 @@ enemyMat.diffuseColor = new BABYLON.Color3(1, 0, 0); //Red
 
         };
     };
-    enemyCount=enemyCount+2;
-}*/
 
     loader.onFinish = function (tasks) {
 
@@ -733,48 +719,21 @@ enemyMat.diffuseColor = new BABYLON.Color3(1, 0, 0); //Red
                 impact.isVisible = false;
             }, 500);
         }
-        
     };
     
     loader.load();
-/*   
-    var a = BABYLON.Mesh.CreateBox("box", 4, scene);
-    var b = BABYLON.Mesh.CreateBox("box", 4, scene);
-
-    a.position.x += 4;
-    b.position.x += 5;
-    b.rotation.y += Math.PI/8;
-
-    var aCSG = BABYLON.CSG.FromMesh(a);
-    var bCSG = BABYLON.CSG.FromMesh(b);
-
-    var subCSG = bCSG.subtract(aCSG);
-
-    // Disposing original meshes since we don't want to see them on the scene
-    a.dispose();
-    b.dispose();
-
-    subCSG.toMesh("csg", new BABYLON.StandardMaterial("mat", scene), scene);
-    subCSG.physicsImpostor =  new BABYLON.PhysicsImpostor(subCSG, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 5, restitution: 0.1 }, scene);
-*/
-
 }
 
 var run = function(scene){
     engine.runRenderLoop(function() {
         
         actor.model.rotationQuaternion = new BABYLON.Quaternion(0,0,0,1);
-
-        if(needToSpawn==1){
-            spawnMonster();
-            needToSpawn=0;
-        }
         
         if (actor.health > 0) {
             move(); 
         }
         else{
-            var r = confirm("You dieded xD Want to play again?");
+            var r = confirm("You Have Died. Play again?");
             if (r == true) {
                 location.reload();
             } else {
@@ -793,8 +752,10 @@ var run = function(scene){
 
         var nearX, nearZ;
 
+        needToSpawn = true;
         enemies.forEach(function(enemy) {
             if (enemy != null) {
+                needToSpawn = false;
                 enemy.rotationQuaternion = new BABYLON.Quaternion(0,0,0,1);
 
                 nearX = true; nearZ = true;
@@ -829,7 +790,6 @@ var run = function(scene){
                     }
                 }
             }
-            
         });
 
         // if healing is active
@@ -850,6 +810,12 @@ var run = function(scene){
             }
         }
 
+        if (needToSpawn && !barrier) {
+            console.log("Better monsters");
+            enemyCount += 2;
+            enemyHealth++;
+            spawnMonsters();
+        }
             
         scene.render();
     });
