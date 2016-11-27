@@ -544,9 +544,6 @@ var createScene = function() {
     house.position = new BABYLON.Vector3(0, 10 ,-20);
     house.physicsImpostor = new BABYLON.PhysicsImpostor(house, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 5000, restitution: 0 }, scene);
 
-    var deadTree = BABYLON.Mesh.CreateCylinder("deadTree", 15, 15, 15, 6, 1, scene, false);
-    deadTree.position = new BABYLON.Vector3(20, 7 ,20);
-
     var towerMesh1 = BABYLON.Mesh.CreateCylinder("tower1", 15, 15, 15, 6, 1, scene, false);
     towerMesh1.position = new BABYLON.Vector3(-38, 8 ,45);
     towerMesh1.physicsImpostor = new BABYLON.PhysicsImpostor(towerMesh1, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 5000, restitution: 0 }, scene);
@@ -565,9 +562,6 @@ var createScene = function() {
     materialWall.diffuseTexture = new BABYLON.Texture("textures/castle.jpg", scene);
     materialWall.backFaceCulling = true;//Always show the front and the back of an element
     materialWall.specularColor = new BABYLON.Color3(0,0,0); // no ground reflection
-
-    var materialTree = new BABYLON.StandardMaterial("treeTex", scene);
-    materialTree.diffuseTexture = new BABYLON.Texture("textures/Dead_Tree_Bark1-diff.jpg", scene);
 
     for (var i = 0; i < 4; i++) {
         var towerLoad = loader.addMeshTask("towerMesh"+i, "", "./assets/wall/", "Only Tower.obj");
@@ -601,14 +595,11 @@ var createScene = function() {
     var treeLoad = loader.addMeshTask("deadTree", "", "./assets/deadTree/", "DeadTree1.obj");
         treeLoad.onSuccess = function(t) {
             t.loadedMeshes.forEach(function(mesh) {
-                mesh.scaling = new BABYLON.Vector3(0.01, 0.01, 0.01);
-                mesh.position.y += -7;
-                //mesh.material = materialTree;
-                mesh.parent = deadTree;
+                mesh.scaling = new BABYLON.Vector3(0.02, 0.02, 0.02);
+                mesh.position = new BABYLON.Vector3(20, 0 ,20);
                 shadowGenerator.getShadowMap().renderList.push(mesh);
 	            //shadowGenerator.useVarianceShadowMap = true;
             });
-            deadTree.isVisible = false;
         };
     
     
