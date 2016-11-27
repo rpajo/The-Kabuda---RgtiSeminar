@@ -480,20 +480,20 @@ var createScene = function() {
     materialPlane2.backFaceCulling = false;//Always show the front and the back of an element
     materialPlane2.specularColor = new BABYLON.Color3(0.1,0.1,0.1); // no ground reflection
     ground2.material = materialPlane2;
-
+/*
     var box = BABYLON.Mesh.CreateBox("box", 3, scene);
     var boxMat = new BABYLON.StandardMaterial("boxmMterial", scene);
     box.material = boxMat;
     box.position.y = 3;
     box.position.z = 0;
-
+*/
     console.log("Set physx");
 
     scene.enablePhysics();
-    box.physicsImpostor = new BABYLON.PhysicsImpostor(box, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0.9 }, scene);
+    //box.physicsImpostor = new BABYLON.PhysicsImpostor(box, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0.9 }, scene);
     ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
 
-    shadowGenerator.getShadowMap().renderList.push(box);
+    //shadowGenerator.getShadowMap().renderList.push(box);
     //shadowGenerator.useVarianceShadowMap = true;
 
     console.log("init movement")
@@ -938,6 +938,7 @@ var run = function(scene){
 var setup = function() {
     document.getElementById("hud").style.visibility = "visible";
     document.getElementById("title").style.display = "none";
+    document.getElementById("titleContent").style.display = "none";
     createScene();
 }
 
