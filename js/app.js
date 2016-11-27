@@ -682,6 +682,18 @@ var createScene = function() {
 	            //shadowGenerator.useVarianceShadowMap = true;
             });
         };
+
+        var treeLoad = loader.addMeshTask("deadTree", "", "./assets/deadTree/", "DeadTree21.obj");
+        treeLoad.onSuccess = function(t) {
+            t.loadedMeshes.forEach(function(mesh) {
+
+                mesh.scaling = new BABYLON.Vector3(0.015, 0.015, 0.015);
+                mesh.position = new BABYLON.Vector3(38, 0 ,-35);
+
+                shadowGenerator.getShadowMap().renderList.push(mesh);
+	            //shadowGenerator.useVarianceShadowMap = true;
+            });
+        };
     
     
     
