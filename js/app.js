@@ -17,7 +17,8 @@ var actor = {
         aoe : 0, // damage explosive skill
         model: null,
         mana: 100,
-        score: 0
+        score: 0,
+        round: 1
         };
 
 var asset, camera, scene, ground, currentMesh, loader, enemyMat, shadowGenerator;
@@ -922,6 +923,8 @@ var run = function(scene){
             console.log("Better monsters");
             enemyCount += 2;
             enemyHealth++;
+            actor.round = actor.round+1;
+            document.getElementById("roundDisplay").innerHTML = "Round: " + Math.round(actor.round*100)/100;
             spawnMonsters();
         }
             

@@ -76,3 +76,11 @@ progress {
     color:white;
     font-size: 4em;
 }
+
+#roundDisplay {
+    position:absolute;
+    top:70px;
+    left : 850px;
+    color:white;
+    font-size: 3em;
+}
