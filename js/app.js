@@ -563,6 +563,10 @@ var createScene = function() {
     materialWall.backFaceCulling = true;//Always show the front and the back of an element
     materialWall.specularColor = new BABYLON.Color3(0,0,0); // no ground reflection
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> some cleaning
     for (var i = 0; i < 4; i++) {
         var towerLoad = loader.addMeshTask("towerMesh"+i, "", "./assets/wall/", "Only Tower.obj");
         towerLoad.onSuccess = function(t) {
@@ -595,8 +599,14 @@ var createScene = function() {
     var treeLoad = loader.addMeshTask("deadTree", "", "./assets/deadTree/", "DeadTree1.obj");
         treeLoad.onSuccess = function(t) {
             t.loadedMeshes.forEach(function(mesh) {
+
                 mesh.scaling = new BABYLON.Vector3(0.02, 0.02, 0.02);
                 mesh.position = new BABYLON.Vector3(20, 0 ,20);
+
+                mesh.scaling = new BABYLON.Vector3(0.01, 0.01, 0.01);
+                mesh.position.y += -7;
+                mesh.parent = deadTree;
+
                 shadowGenerator.getShadowMap().renderList.push(mesh);
 	            //shadowGenerator.useVarianceShadowMap = true;
             });
