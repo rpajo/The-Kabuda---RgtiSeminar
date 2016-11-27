@@ -904,6 +904,7 @@ var run = function(scene){
         // if healing is active
         if (actor.heal > 0) {
             actor.health += 0.4;
+            if(actor.health > 100) actor.health = 100;
             actor.heal += -0.4;
             healthBar.value = Math.floor(actor.health);
             document.getElementById("healthDisplay").innerHTML = "HEALTH: " + Math.round(actor.health*100)/100;
