@@ -456,11 +456,6 @@ var createScene = function() {
     healingEffect = new BABYLON.Sound("miss", "assets/sounds/healing.mp3", scene);
 
     aoeEffect = new BABYLON.Sound("miss", "assets/sounds/aoe.mp3", scene);
-    
-
-    /*walkingEffect = new BABYLON.Sound("walking", "assets/sounds/walking2.wav", scene, function() {
-        console.log("walking effect loaded");
-    }, { loop: true, autoplay: true });*/
 
     var music = new BABYLON.Sound("music", "assets/sounds/diablo1.mp3", scene,
         function () {
