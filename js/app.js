@@ -748,8 +748,8 @@ var createScene = function() {
             var enemy = BABYLON.Mesh.CreateCylinder("enemy" + i, 3.8, 2, 2, 6, 1, scene, false);
             enemy.actionManager = new BABYLON.ActionManager(scene);
             enemy.visibility = 0;
-            enemy.position.z = Math.random()*50;
-            enemy.position.x = Math.random()*50;
+            enemy.position.z = Math.random()*80-40;
+            enemy.position.x = Math.random()*80-40;
             enemy.position.y = 2;
 
             var enemyTorus = BABYLON.Mesh.CreateTorus("enemyTorus" + i, 1.3, 0.2, 16, scene, false);
@@ -924,7 +924,7 @@ var run = function(scene){
             enemyCount += 2;
             enemyHealth++;
             actor.round = actor.round+1;
-            document.getElementById("roundDisplay").innerHTML = "Round: " + Math.round(actor.round*100)/100;
+            document.getElementById("roundDisplay").innerHTML = "Round: " + actor.round;
             spawnMonsters();
         }
             
