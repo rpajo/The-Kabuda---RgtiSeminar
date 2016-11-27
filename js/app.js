@@ -20,7 +20,7 @@ var actor = {
         score: 0
         };
 
-var charModel, asset, camera, scene, ground, currentMesh;
+var asset, camera, scene, ground, currentMesh;
 var walkingEffect, swordEffect, dyingEffect, missEffect; //sound effects
 var particleHeal, particleAoe; // particle effects
 var enemies = [];
@@ -689,9 +689,15 @@ enemyMat.diffuseColor = new BABYLON.Color3(1, 0, 0); //Red
 
             asset = {meshes: enemy};
 
+<<<<<<< d8ce158d4d52d45355b6ea72ac105e27cc9060d9
             
             enemy.physicsImpostor = new BABYLON.PhysicsImpostor(enemy, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 5, restitution: 0.1 }, scene);
             enemy.isVisible = true;
+=======
+        
+        enemy.physicsImpostor = new BABYLON.PhysicsImpostor(enemy, BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 5, restitution: 0.1 }, scene);
+        enemy.isVisible = true;
+>>>>>>> Small fixes
 
             
             enemy.rotationQuaternion = new BABYLON.Quaternion(0, 0, 0, 1);
@@ -789,8 +795,8 @@ var run = function(scene){
 
         enemies.forEach(function(enemy) {
             if (enemy != null) {
-                enemy.rotationQuaternion.x = 0;
-                enemy.rotationQuaternion.z = 0;
+                enemy.rotationQuaternion = new BABYLON.Quaternion(0,0,0,1);
+
                 nearX = true; nearZ = true;
                 if (enemy.position.x < actor.model.position.x - 2) {
                     enemy.position.x += 0.1;
