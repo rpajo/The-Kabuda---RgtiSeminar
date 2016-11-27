@@ -81,7 +81,10 @@ progress {
   background: #fff;
 }
 
-#h progress::-moz-progress-bar { background: red; }
+#h progress::-moz-progress-bar, #h progress::-webkit-progress-bar,  { background: red; }
+
+#m progress::-webkit-progress-bar, #m progress::-webkit-progress-bar,  { background: blue; }
+
 
 #manaDisplay {
     position:absolute;
