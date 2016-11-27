@@ -462,11 +462,11 @@ var createScene = function() {
         console.log("walking effect loaded");
     }, { loop: true, autoplay: true });*/
 
-    /*var music = new BABYLON.Sound("music", "assets/sounds/diablo1.mp3", scene,
+    var music = new BABYLON.Sound("music", "assets/sounds/diablo1.mp3", scene,
         function () {
         // Sound has been downloaded & decoded
         music.play();
-        }, { loop: true, autoplay: true });*/
+        }, { loop: true, autoplay: true });
 
     //Creation of a repeated textured material
     var materialPlane = new BABYLON.StandardMaterial("texturePlane", scene);
