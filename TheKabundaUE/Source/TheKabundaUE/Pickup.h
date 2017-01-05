@@ -22,7 +22,15 @@ public:
 	
 	// Static Mesh for the pickup
 	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* SM_Pickup;
+	UStaticMeshComponent* PickupMesh;
 	
+	UPROPERTY(EditAnywhere)
+	UShapeComponent* PickupBox;
+
+	UPROPERTY(EditAnywhere)
+	USceneComponent* PickupRoot;
 	
+	UFUNCTION()
+		void onPlayerEnter(UPrimitiveComponent* overlappedComp, AActor* enteringActor, UPrimitiveComponent* otherComp, 
+			int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult); 
 };
